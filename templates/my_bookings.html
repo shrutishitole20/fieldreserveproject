@@ -1,0 +1,58 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container py-5">
+  <h1 class="mb-4">My Bookings</h1>
+
+  {% if bookings %}
+  <div class="row g-4">
+    {% for booking in bookings %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm">
+        {% if booking.facility.image %}
+        <!-- Changed from field to facility -->
+        <img
+          src="{{ booking.facility.image.url }}"
+          class="card-img-top"
+          alt="{{ booking.facility.name }}"
+          style="height: 200px; object-fit: cover"
+        />
+        {% else %}
+        <div class="bg-light text-center py-5">
+          <i class="fas fa-image fa-3x text-muted"></i>
+        </div>
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title mb-0">{{ booking.facility.name }}</h5>
+          <!-- Changed from field to facility -->
+          <p class="card-subtitle text-secondary mb-3">
+            {{ booking.facility.address }}
+            <!-- Changed to address; use city if preferred -->
+          </p>
+          <p class="mb-2">
+            <i class="far fa-clock me-2"></i>
+            {{ booking.date|date:"F j, Y" }} at {{ booking.start_time|time:"g:i
+            A" }} - {{ booking.end_time|time:"g:i A" }}
+          </p>
+          <p class="card-text text-primary fw-semibold mb-3">
+            Price: ${{ booking.price }}
+          </p>
+          <div class="d-grid gap-2">
+            <a
+              href="{% url 'cancel_booking' booking.id %}"
+              class="btn btn-danger"
+              onclick="return confirm('Are you sure you want to cancel this booking?')"
+              >Cancel</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="lead text-center">You have no bookings yet.</p>
+  <p class="text-center">
+    <a href="/" class="btn btn-primary">Find and Book a Spot</a>
+  </p>
+  {% endif %}
+</div>
+{% endblock content %}

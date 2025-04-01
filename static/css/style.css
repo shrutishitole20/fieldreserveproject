@@ -1,0 +1,96 @@
+/* General Styles */
+:root {
+  --primary: #0d6efd;
+  --primary-light: rgba(13, 110, 253, 0.1);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  padding-top: 80px;
+}
+
+.section {
+  padding: 80px 0;
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+  position: relative;
+  overflow: hidden;
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, var(--primary), #6610f2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Features */
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.bg-primary-light {
+  background-color: var(--primary-light);
+}
+
+/* Location Cards */
+.location-image {
+  position: relative;
+}
+
+.location-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+}
+
+/* Card Shadows */
+.shadow-card {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.shadow-card:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+}
+
+/* Animations */
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Testimonials */
+.testimonial-card {
+  transition: all 0.3s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hero {
+      text-align: center;
+  }
+  
+  .section {
+      padding: 60px 0;
+  }
+}

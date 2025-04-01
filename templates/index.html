@@ -1,0 +1,245 @@
+{% extends 'base.html' %} {% block content %}
+<!-- Hero Section -->
+<section class="hero min-vh-100 d-flex align-items-center">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 text-center text-lg-start">
+        <div class="badge bg-primary-light text-primary mb-3">
+          <i class="fas fa-calendar-alt me-2"></i>
+          Book your perfect spot in seconds
+        </div>
+        <h1 class="display-4 fw-bold mb-4">
+          Find and Book the <span class="text-gradient">Perfect Spot</span> for
+          Your Activity
+        </h1>
+        <p class="lead text-muted mb-5">
+          Discover and reserve sports facilities, event venues, and unique
+          spaces with our seamless booking platform.
+        </p>
+        <div class="d-grid gap-2 d-md-flex">
+          <a href="#search-form" class="btn btn-primary btn-lg px-4 me-md-2">
+            Find Spaces Near Me
+            <i class="fas fa-map-marker-alt ms-2"></i>
+          </a>
+          <a href="#features" class="btn btn-outline-primary btn-lg px-4">
+            How It Works
+            <i class="fas fa-arrow-right ms-2"></i>
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-6 mt-5 mt-lg-0">
+        <div class="card shadow-lg">
+          <div class="card-body p-4">
+            <h4 class="card-title mb-4">Search Available Spots</h4>
+            <form
+              action="{% url 'search_slots' %}"
+              method="GET"
+              id="search-form"
+            >
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Activity Type</label>
+                  <select name="activity" class="form-select">
+                    <option value="">Select activity</option>
+                    {% for activity in activity_types %}
+                    <option value="{{ activity.name }}">
+                      {{ activity.name }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Location</label>
+                  <input
+                    type="text"
+                    name="location"
+                    class="form-control"
+                    placeholder="Enter city or area"
+                  />
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Date</label>
+                  <input type="date" name="date" class="form-control" />
+                </div>
+                <div class="col-12">
+                  <button type="submit" class="btn btn-primary w-100 py-3">
+                    Search Available Spots
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5 my-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="badge bg-primary-light text-primary mb-3">Why Choose Us</div>
+      <h2 class="display-5 fw-bold mb-3">
+        The Easiest Way to Find and Book Your Ideal Space
+      </h2>
+      <p class="lead text-muted mx-auto" style="max-width: 700px">
+        Our platform makes it simple to discover, compare, and book spaces for
+        any activity, saving you time and effort.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div
+              class="feature-icon bg-primary-light text-primary rounded-3 mb-3"
+            >
+              <i class="fas fa-search"></i>
+            </div>
+            <h4 class="card-title">Easy Discovery</h4>
+            <p class="card-text text-muted">
+              Find the perfect spot for your activities with our powerful search
+              filters and location-based recommendations.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div
+              class="feature-icon bg-primary-light text-primary rounded-3 mb-3"
+            >
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <h4 class="card-title">Simple Scheduling</h4>
+            <p class="card-text text-muted">
+              Browse real-time availability and instantly book your preferred
+              time slots without hassle.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div
+              class="feature-icon bg-primary-light text-primary rounded-3 mb-3"
+            >
+              <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <h4 class="card-title">Location Variety</h4>
+            <p class="card-text text-muted">
+              Access a wide range of locations from sports facilities to event
+              spaces, all vetted for quality.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Locations Section -->
+<section id="locations" class="py-5 my-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="badge bg-primary-light text-primary mb-3">
+        Popular Locations
+      </div>
+      <h2 class="display-5 fw-bold mb-3">Discover Top Spots Near You</h2>
+      <p class="lead text-muted mx-auto" style="max-width: 700px">
+        Browse our most popular locations and find the perfect space for your
+        next activity.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      {% for location in featured_locations %}
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm overflow-hidden">
+          <div
+            class="location-image"
+            style="height: 240px; background-image: url('{{ location.image.url }}'); background-size: cover; background-position: center;"
+          >
+            <div
+              class="location-overlay p-4 d-flex flex-column justify-content-end"
+            >
+              {% if location.is_featured %}
+              <span class="badge bg-primary mb-2">Featured</span>
+              {% endif %}
+              <h3 class="text-white fw-bold">{{ location.name }}</h3>
+              <p class="text-white mb-0">
+                <i class="fas fa-map-marker-alt me-2"></i>
+                {{ location.city }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section id="testimonials" class="py-5 my-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="badge bg-primary-light text-primary mb-3">
+        Customer Testimonials
+      </div>
+      <h2 class="display-5 fw-bold mb-3">What Our Users Are Saying</h2>
+      <p class="lead text-muted mx-auto" style="max-width: 700px">
+        Discover why thousands of people choose our platform for their booking
+        needs.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      {% for testimonial in testimonials %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm p-4">
+          <div class="mb-3">
+            {% for i in "12345" %}
+            <!--if block section-->
+            {% if forloop.counter <= testimonial.rating %}
+            <i class="fas fa-star text-warning"></i>
+            {% else %}
+            <i class="far fa-star text-muted"></i>
+            {% endif %} {% endfor %}
+          </div>
+          <p class="card-text fst-italic mb-4">"{{ testimonial.quote }}"</p>
+          <div class="d-flex align-items-center mt-auto">
+            {% if testimonial.image %}
+            <img
+              src="{{ testimonial.image.url }}"
+              class="rounded-circle me-3"
+              width="48"
+              height="48"
+              alt="{{ testimonial.name }}"
+            />
+            {% else %}
+            <div
+              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
+              style="width: 48px; height: 48px"
+            >
+              {{ testimonial.name.0 }}
+            </div>
+            {% endif %}
+            <div>
+              <h6 class="mb-0">{{ testimonial.name }}</h6>
+              <small class="text-muted">{{ testimonial.role }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

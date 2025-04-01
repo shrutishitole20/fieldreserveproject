@@ -1,0 +1,167 @@
+{% extends 'base.html' %} {% block content %}
+<section class="py-5">
+  <div class="container">
+    <h1 class="mb-4">Search Results</h1>
+
+    <!-- Search filters summary -->
+    <div class="card mb-4 bg-light">
+      <div class="card-body">
+        <div class="row">
+          {% if activity %}
+          <div class="col-md-4">
+            <p class="mb-1"><strong>Activity:</strong></p>
+            <p>{{ activity }}</p>
+          </div>
+          {% endif %} {% if location %}
+          <div class="col-md-4">
+            <p class="mb-1"><strong>Location:</strong></p>
+            <p>{{ location }}</p>
+          </div>
+          {% endif %} {% if date %}
+          <div class="col-md-4">
+            <p class="mb-1"><strong>Date:</strong></p>
+            <p>{{ date }}</p>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="mt-3">
+          <a href="/" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-search me-1"></i> New Search
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    {% if slots %}
+    <div class="row g-4">
+      {% for slot in slots %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm">
+          {% if slot.field.image %}
+          <img
+            src="{{ slot.field.image.url }}"
+            class="card-img-top"
+            alt="{{ slot.field.name }}"
+            style="height: 200px; object-fit: cover"
+          />
+          {% else %}
+          <div class="bg-light text-center py-5">
+            <i class="fas fa-image fa-3x text-muted"></i>
+          </div>
+          {% endif %}
+
+          <div class="card-body">
+            <h5 class="card-title">{{ slot.field.name }}</h5>
+            <p class="card-text text-muted">{{ slot.field.location }}</p>
+
+            <div class="d-flex align-items-center mb-3">
+              <span class="badge bg-primary me-2"
+                >{{ slot.field.activity_type }}</span
+              >
+              {% if slot.field.indoor %}
+              <span class="badge bg-info me-2">Indoor</span>
+              {% else %}
+              <span class="badge bg-success me-2">Outdoor</span>
+              {% endif %}
+            </div>
+
+            <p>
+              <i class="far fa-clock me-2"></i>{{ slot.start_time }} - {{
+              slot.end_time }}
+            </p>
+            <p><i class="fas fa-tag me-2"></i>${{ slot.price }}</p>
+
+            <div class="d-grid gap-2">
+              <a href="{% url 'book_slot' slot.id %}" class="btn btn-primary">
+                Book Now
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination if needed -->
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="?page={{ page_obj.previous_page_number }}&activity={{ activity }}&location={{ location }}&date={{ date }}"
+            aria-label="Previous"
+          >
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        {% endif %} {% for i in paginator.page_range %}
+        <li class="page-item {% if page_obj.number == i %}active{% endif %}">
+          <a
+            class="page-link"
+            href="?page={{ i }}&activity={{ activity }}&location={{ location }}&date={{ date }}"
+            >{{ i }}</a
+          >
+        </li>
+        {% endfor %} {% if page_obj.has_next %}
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="?page={{ page_obj.next_page_number }}&activity={{ activity }}&location={{ location }}&date={{ date }}"
+            aria-label="Next"
+          >
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %} {% else %}
+    <div class="alert alert-info">
+      <h4 class="alert-heading">
+        <i class="fas fa-info-circle me-2"></i>No results found
+      </h4>
+      <p>
+        We couldn't find any available slots matching your search criteria.
+        Please try different search parameters or check back later.
+      </p>
+      <hr />
+      <p class="mb-0">
+        Need help? <a href="#" class="alert-link">Contact our support team</a>.
+      </p>
+    </div>
+
+    <div class="mt-4">
+      <h5>Popular Locations</h5>
+      <div class="row g-3 mt-2">
+        <div class="col-6 col-md-4 col-lg-3">
+          <a href="?location=New York" class="btn btn-outline-secondary w-100"
+            >New York</a
+          >
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <a
+            href="?location=Los Angeles"
+            class="btn btn-outline-secondary w-100"
+            >Los Angeles</a
+          >
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <a href="?location=Chicago" class="btn btn-outline-secondary w-100"
+            >Chicago</a
+          >
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <a href="?location=Houston" class="btn btn-outline-secondary w-100"
+            >Houston</a
+          >
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
