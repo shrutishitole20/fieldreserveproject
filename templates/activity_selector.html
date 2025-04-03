@@ -1,0 +1,73 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-body">
+          <h3 class="card-title text-center mb-4">Select Activity Type</h3>
+
+          <div class="dropdown-container p-4">
+            <div class="mb-3">
+              <label for="activityDropdown" class="form-label"
+                >Activity Type</label
+              >
+              <div class="position-relative">
+                <select
+                  id="activityDropdown"
+                  class="form-select form-select-lg"
+                  aria-label="Select activity"
+                >
+                  <option value="" selected>Select activity</option>
+                  {% for activity in activity_types %}
+                  <option value="{{ activity.name }}">
+                    {{ activity.name }}
+                  </option>
+                  {% endfor %}
+                  <!-- Fallback options if database is empty -->
+                  {% if not activity_types %}
+                  <option value="Football">Football</option>
+                  <option value="Basketball">Basketball</option>
+                  <option value="Tennis">Tennis</option>
+                  <option value="Badminton">Badminton</option>
+                  <option value="Event Space">Event Space</option>
+                  {% endif %}
+                </select>
+              </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+              <button id="useActivityBtn" class="btn btn-primary">
+                Use Selected Activity
+              </button>
+              <a href="{% url 'index' %}" class="btn btn-outline-secondary">
+                Cancel
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const useActivityBtn = document.getElementById("useActivityBtn");
+    const activityDropdown = document.getElementById("activityDropdown");
+
+    useActivityBtn.addEventListener("click", function () {
+      const selectedActivity = activityDropdown.value;
+      if (selectedActivity) {
+        // Store in session/local storage
+        localStorage.setItem("selectedActivity", selectedActivity);
+
+        // Redirect back to search form with the selected activity
+        window.location.href =
+          '{% url "index" %}?activity=' +
+          encodeURIComponent(selectedActivity) +
+          "#search-form";
+      }
+    });
+  });
+</script>
+{% endblock %}

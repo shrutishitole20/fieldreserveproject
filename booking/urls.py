@@ -10,4 +10,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('my-bookings/', views.my_bookings, name='my_bookings'),
+    # New location search history URLs
+    path('location/', views.location_selector, name='location_selector'),
+    path('location/remove/<int:search_id>/', views.remove_search, name='remove_search'),
 ]

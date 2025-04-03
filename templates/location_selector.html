@@ -1,0 +1,239 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container py-5">
+  <div class="row">
+    <div class="col-md-10 mx-auto">
+      <div class="d-flex justify-content-between mb-4">
+        <a href="{% url 'index' %}" class="btn btn-link text-dark px-0">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <a href="{% url 'index' %}" class="btn btn-link text-dark px-0">
+          <i class="fas fa-home"></i>
+        </a>
+      </div>
+
+      <h2 class="mb-4">Choose your location</h2>
+
+      <form method="GET" action="{% url 'search_slots' %}" class="mb-4">
+        <div class="input-group mb-3">
+          <input
+            type="text"
+            name="location"
+            class="form-control form-control-lg"
+            placeholder="Search"
+            aria-label="Search location"
+          />
+          <button class="btn btn-outline-secondary" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </form>
+
+      <a
+        href="#"
+        id="detect-location"
+        class="d-flex align-items-center text-success mb-4"
+      >
+        <i class="fas fa-location-arrow me-2"></i>
+        <span>Detect my location</span>
+      </a>
+
+      <div id="nearby-grounds-container" class="mb-5 d-none">
+        <h4 class="mb-3">Playgrounds Near Me</h4>
+        <div id="nearby-grounds-list" class="row g-4">
+          <!-- Nearby grounds will be loaded here -->
+          <div class="col-12 text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if recent_searches %}
+      <div class="mb-5">
+        <h5 class="mb-3">Recent Search History</h5>
+        <div class="list-group">
+          {% for search in recent_searches %}
+          <div
+            class="list-group-item d-flex justify-content-between align-items-center"
+          >
+            {{ search.search_term }}
+            <a
+              href="{% url 'remove_search' search_id=search.id %}"
+              class="text-muted"
+            >
+              <i class="fas fa-times"></i>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="mb-4">
+        <h5 class="mb-3">Pick your state</h5>
+        <div class="row row-cols-2 row-cols-md-4 g-4">
+          <div class="col text-center">
+            <a
+              href="{% url 'search_slots' %}?location=Kerala"
+              class="text-decoration-none"
+            >
+              <div class="card h-100 border-0">
+                <div class="card-body">
+                  <img
+                    src="{{ STATIC_URL }}images/states/kerala.png"
+                    alt="Kerala"
+                    class="img-fluid mb-2"
+                    style="height: 80px; width: auto"
+                  />
+                  <p class="card-text">Kerala</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col text-center">
+            <a
+              href="{% url 'search_slots' %}?location=Tamil Nadu"
+              class="text-decoration-none"
+            >
+              <div class="card h-100 border-0">
+                <div class="card-body">
+                  <img
+                    src="{{ STATIC_URL }}images/states/tamil-nadu.png"
+                    alt="Tamil Nadu"
+                    class="img-fluid mb-2"
+                    style="height: 80px; width: auto"
+                  />
+                  <p class="card-text">Tamil Nadu</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <!-- Add more states as needed -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const detectLocationBtn = document.getElementById("detect-location");
+    const nearbyGroundsContainer = document.getElementById(
+      "nearby-grounds-container"
+    );
+    const nearbyGroundsList = document.getElementById("nearby-grounds-list");
+
+    detectLocationBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      if (navigator.geolocation) {
+        // Show the container and loading spinner
+        nearbyGroundsContainer.classList.remove("d-none");
+
+        navigator.geolocation.getCurrentPosition(
+          function (position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            // Fetch nearby grounds from our API
+            fetch(`/api/nearby-grounds/?lat=${latitude}&lng=${longitude}`)
+              .then((response) => response.json())
+              .then((data) => {
+                // Clear the loading spinner
+                nearbyGroundsList.innerHTML = "";
+
+                if (data.grounds && data.grounds.length > 0) {
+                  // Display the nearby grounds
+                  data.grounds.forEach((location) => {
+                    location.grounds.forEach((ground) => {
+                      const groundCard = document.createElement("div");
+                      groundCard.className = "col-md-6 col-lg-4";
+
+                      const imageSrc =
+                        ground.image_url ||
+                        "https://via.placeholder.com/300x200?text=No+Image";
+
+                      groundCard.innerHTML = `
+                                            <div class="card h-100 shadow-sm">
+                                                <img src="${imageSrc}" class="card-img-top" alt="${
+                        ground.name
+                      }" style="height: 200px; object-fit: cover">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">${
+                                                      ground.name
+                                                    }</h5>
+                                                    <p class="card-subtitle mb-2 text-muted">
+                                                        <i class="fas fa-map-marker-alt me-1"></i> ${
+                                                          location.city
+                                                        } (${
+                        location.distance
+                      } km)
+                                                    </p>
+                                                    <p class="card-text">${ground.description.substring(
+                                                      0,
+                                                      100
+                                                    )}${
+                        ground.description.length > 100 ? "..." : ""
+                      }</p>
+                                                    <span class="badge ${
+                                                      ground.indoor
+                                                        ? "bg-info"
+                                                        : "bg-success"
+                                                    } mb-2">
+                                                        ${
+                                                          ground.indoor
+                                                            ? "Indoor"
+                                                            : "Outdoor"
+                                                        }
+                                                    </span>
+                                                    <span class="badge bg-primary mb-2">
+                                                        ${ground.activity_type}
+                                                    </span>
+                                                    <div class="d-grid gap-2 mt-3">
+                                                        <a href="/search-slots/?location=${encodeURIComponent(
+                                                          location.city
+                                                        )}" 
+                                                           class="btn btn-primary">
+                                                            Check Availability
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `;
+
+                      nearbyGroundsList.appendChild(groundCard);
+                    });
+                  });
+                } else {
+                  // No grounds found
+                  nearbyGroundsList.innerHTML = `
+                                    <div class="col-12 text-center py-4">
+                                        <p class="lead">No playgrounds found near your location.</p>
+                                    </div>
+                                `;
+                }
+              })
+              .catch((error) => {
+                console.error("Error fetching nearby grounds:", error);
+                nearbyGroundsList.innerHTML = `
+                                <div class="col-12 text-center py-4">
+                                    <p class="text-danger">Failed to load nearby playgrounds. Please try again.</p>
+                                </div>
+                            `;
+              });
+          },
+          function (error) {
+            nearbyGroundsContainer.classList.add("d-none");
+            alert("Unable to retrieve your location. Please search manually.");
+          }
+        );
+      } else {
+        alert(
+          "Geolocation is not supported by your browser. Please search manually."
+        );
+      }
+    });
+  });
+</script>
+{% endblock %}

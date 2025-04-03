@@ -39,27 +39,52 @@
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label">Activity Type</label>
-                  <select name="activity" class="form-select">
-                    <option value="">Select activity</option>
-                    {% for activity in activity_types %}
-                    <option value="{{ activity.name }}">
-                      {{ activity.name }}
-                    </option>
-                    {% endfor %}
-                  </select>
+                  <div class="position-relative">
+                    <select
+                      name="activity"
+                      id="activitySelect"
+                      class="form-select"
+                    >
+                      <option value="">Select activity</option>
+                      {% for activity in activity_types %}
+                      <option value="{{ activity.name }}">
+                        {{ activity.name }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                    <a
+                      href="{% url 'activity_selector' %}"
+                      class="position-absolute end-0 top-0 btn btn-link"
+                    >
+                      <i class="fas fa-chevron-right"></i>
+                    </a>
+                  </div>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Location</label>
-                  <input
-                    type="text"
-                    name="location"
-                    class="form-control"
-                    placeholder="Enter city or area"
-                  />
+                  <div class="position-relative">
+                    <input
+                      type="text"
+                      name="location"
+                      class="form-control"
+                      placeholder="Enter city or area"
+                    />
+                    <a
+                      href="{% url 'location_selector' %}"
+                      class="position-absolute end-0 top-0 btn btn-link"
+                    >
+                      <i class="fas fa-map-marker-alt"></i>
+                    </a>
+                  </div>
                 </div>
                 <div class="col-12">
                   <label class="form-label">Date</label>
-                  <input type="date" name="date" class="form-control" />
+                  <input
+                    type="date"
+                    name="date"
+                    id="dateInput"
+                    class="form-control"
+                  />
                 </div>
                 <div class="col-12">
                   <button type="submit" class="btn btn-primary w-100 py-3">
@@ -205,8 +230,7 @@
       <div class="col-md-6 col-lg-4">
         <div class="card h-100 border-0 shadow-sm p-4">
           <div class="mb-3">
-            {% for i in "12345" %}
-            <!--if block section-->
+            {% for i in "12345" %}<!-- Loop for stars -->
             {% if forloop.counter <= testimonial.rating %}
             <i class="fas fa-star text-warning"></i>
             {% else %}
@@ -242,4 +266,48 @@
     </div>
   </div>
 </section>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-body">
+          <h3 class="card-title text-center mb-4">Find Activities Near You</h3>
+
+          <div class="d-grid gap-2">
+            <a href="{% url 'location_selector' %}" class="btn btn-primary">
+              <i class="fas fa-map-marker-alt me-2"></i>Choose Your Location
+            </a>
+            <a href="{% url 'activity_selector' %}" class="btn btn-success">
+              <i class="fas fa-running me-2"></i>Select Activity Type
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Load saved activity from local storage if available
+    const savedActivity = localStorage.getItem("selectedActivity");
+    const activitySelect = document.getElementById("activitySelect");
+    const urlParams = new URLSearchParams(window.location.search);
+    const activityParam = urlParams.get("activity");
+
+    // Priority: URL parameter > localStorage value
+    if (activityParam && activitySelect) {
+      activitySelect.value = activityParam;
+    } else if (savedActivity && activitySelect) {
+      activitySelect.value = savedActivity;
+    }
+
+    // Optional: Clear localStorage after using it
+    if (activityParam) {
+      localStorage.removeItem("selectedActivity");
+    }
+  });
+</script>
+
 {% endblock %}
