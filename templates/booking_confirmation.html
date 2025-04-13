@@ -1,0 +1,85 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <div class="text-center mb-4">
+            <i class="fas fa-check-circle text-success fa-4x mb-3"></i>
+            <h1 class="text-gradient">Booking Confirmed!</h1>
+            <p class="lead text-muted">
+              Thank you for your reservation. Your booking details are below.
+            </p>
+          </div>
+
+          <div class="bg-light rounded p-4 mb-4">
+            <h4 class="mb-3">Booking Details</h4>
+
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Booking ID:</div>
+              <div class="col-sm-8 fw-bold">{{ booking.id }}</div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Facility:</div>
+              <div class="col-sm-8">{{ booking.slot.field.name }}</div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Activity:</div>
+              <div class="col-sm-8">{{ booking.slot.activity_type.name }}</div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Location:</div>
+              <div class="col-sm-8">{{ booking.slot.location.address }}</div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Date:</div>
+              <div class="col-sm-8">{{ booking.slot.date|date:"F j, Y" }}</div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Time:</div>
+              <div class="col-sm-8">
+                {{ booking.slot.start_time|time:"g:i A" }} - {{
+                booking.slot.end_time|time:"g:i A" }}
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Participants:</div>
+              <div class="col-sm-8">{{ booking.participants }}</div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Total Price:</div>
+              <div class="col-sm-8 fw-bold text-primary">
+                ${{ booking.slot.price }}
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <a href="{% url 'my_bookings' %}" class="btn btn-primary me-2">
+              <i class="fas fa-list-ul me-2"></i>My Bookings
+            </a>
+            <a href="{% url 'index' %}" class="btn btn-outline-primary">
+              <i class="fas fa-home me-2"></i>Return to Home
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <p class="text-muted">
+          <i class="fas fa-exclamation-circle me-2"></i>
+          Need to cancel? Visit your
+          <a href="{% url 'my_bookings' %}">My Bookings</a> page.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

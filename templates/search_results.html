@@ -41,8 +41,7 @@
         <div class="card h-100 shadow-sm">
           {% if slot.field.image %}
           <img
-            src="{{ slot.field.image.url }}"
-            class="card-img-top"
+            src="{{ slot.field.image.url|default:slot.field.default_image }}"
             alt="{{ slot.field.name }}"
             style="height: 200px; object-fit: cover"
           />

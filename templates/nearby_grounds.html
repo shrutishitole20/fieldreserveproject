@@ -1,0 +1,282 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-5">
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'location_selector' %}">Locations</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">
+            {% if lat and lng %} Grounds near your location {% else %} Grounds
+            in {{ location }} {% endif %}
+          </li>
+        </ol>
+      </nav>
+
+      <h2 class="mb-3">
+        {% if lat and lng %} Sports Grounds near your current location {% else
+        %} Sports Grounds in {{ location }} {% endif %}
+      </h2>
+      <p class="lead text-muted">
+        {% if lat and lng %} Discover and book sports facilities near you {%
+        else %} Discover and book sports facilities in {{ location }} {% endif
+        %}
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-3 mb-4">
+      <!-- Filters Section -->
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Filters</h5>
+          <hr />
+
+          <form id="filterForm" method="GET">
+            {% if location %}
+            <input type="hidden" name="location" value="{{ location }}" />
+            {% endif %} {% if lat %}
+            <input type="hidden" name="lat" value="{{ lat }}" />
+            {% endif %} {% if lng %}
+            <input type="hidden" name="lng" value="{{ lng }}" />
+            {% endif %}
+
+            <div class="mb-3">
+              <label class="form-label">Activity Type</label>
+              <select class="form-select" name="activity">
+                <option value="">All Activities</option>
+                <option value="cricket">Cricket</option>
+                <option value="football">Football</option>
+                <option value="basketball">Basketball</option>
+                <option value="tennis">Tennis</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Venue Type</label>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  value="1"
+                  id="indoorFilter"
+                  name="indoor"
+                />
+                <label class="form-check-label" for="indoorFilter"
+                  >Indoor</label
+                >
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  value="1"
+                  id="outdoorFilter"
+                  name="outdoor"
+                />
+                <label class="form-check-label" for="outdoorFilter"
+                  >Outdoor</label
+                >
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Distance</label>
+              <input
+                type="range"
+                class="form-range"
+                min="1"
+                max="50"
+                step="1"
+                id="distanceRange"
+                name="distance"
+              />
+              <div class="d-flex justify-content-between">
+                <span>1 km</span>
+                <span id="distanceValue">10 km</span>
+                <span>50 km</span>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+              Apply Filters
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-9">
+      <!-- Grounds List Section -->
+      <div id="groundsContainer" class="row row-cols-1 row-cols-md-2 g-4">
+        <!-- Grounds will be loaded here via AJAX -->
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2">Loading grounds...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Distance slider functionality
+    const distanceRange = document.getElementById("distanceRange");
+    const distanceValue = document.getElementById("distanceValue");
+
+    if (distanceRange && distanceValue) {
+      distanceRange.addEventListener("input", function () {
+        distanceValue.textContent = this.value + " km";
+      });
+    }
+
+    // Load grounds via AJAX
+    function loadGrounds() {
+      const groundsContainer = document.getElementById("groundsContainer");
+      if (!groundsContainer) return;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      let apiUrl = "{% url 'nearby_grounds_api' %}?";
+
+      // Add all existing query parameters to the API request
+      for (const [key, value] of urlParams.entries()) {
+        apiUrl += `${key}=${encodeURIComponent(value)}&`;
+      }
+
+      fetch(apiUrl)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            groundsContainer.innerHTML = `
+                        <div class="col-12 text-center py-5">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                ${data.error}
+                            </div>
+                        </div>
+                    `;
+            return;
+          }
+
+          if (!data.grounds || data.grounds.length === 0) {
+            groundsContainer.innerHTML = `
+                        <div class="col-12 text-center py-5">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                No grounds found in this location. Try changing your search or filters.
+                            </div>
+                        </div>
+                    `;
+            return;
+          }
+
+          // Clear loading state
+          groundsContainer.innerHTML = "";
+
+          // Create a ground card for each result
+          data.grounds.forEach((location) => {
+            location.grounds.forEach((ground) => {
+              const groundCard = document.createElement("div");
+              groundCard.className = "col";
+              groundCard.innerHTML = `
+                            <div class="card h-100 shadow-sm">
+                                <img src="${
+                                  ground.image_url
+                                }" class="card-img-top" alt="${
+                ground.name
+              }" style="height: 180px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h5 class="card-title">${ground.name}</h5>
+                                    <p class="card-text text-muted">
+                                        <i class="fas fa-map-marker-alt me-1"></i> 
+                                        ${location.city} <small class="ms-2">(${
+                location.distance
+              } km away)</small>
+                                    </p>
+                                    <p class="card-text">${
+                                      ground.description
+                                    }</p>
+                                    <p class="mb-1"><small class="text-primary">
+                                        <i class="fas fa-futbol me-1"></i> ${
+                                          ground.activity_type
+                                        }
+                                    </small></p>
+                                    <p><small class="text-secondary">
+                                        <i class="fas fa-${
+                                          ground.indoor ? "building" : "tree"
+                                        } me-1"></i> 
+                                        ${
+                                          ground.indoor ? "Indoor" : "Outdoor"
+                                        } facility
+                                    </small></p>
+                                </div>
+                                <div class="card-footer bg-white">
+                                    <div class="d-grid">
+                                        <a href="{% url 'search_slots' %}?location=${encodeURIComponent(
+                                          location.city
+                                        )}&activity=${encodeURIComponent(
+                ground.activity_type.split(",")[0]
+              )}" 
+                                           class="btn btn-outline-primary">
+                                            <i class="fas fa-calendar-alt me-1"></i> Check Availability
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+              groundsContainer.appendChild(groundCard);
+            });
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching grounds:", error);
+          groundsContainer.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Error loading grounds. Please try again later.
+                        </div>
+                    </div>
+                `;
+        });
+    }
+
+    // Initialize the page
+    loadGrounds();
+
+    // Handle filter form submissions
+    const filterForm = document.getElementById("filterForm");
+    if (filterForm) {
+      filterForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(filterForm);
+        const params = new URLSearchParams(window.location.search);
+
+        // Update URL with form values
+        for (const [key, value] of formData.entries()) {
+          if (value) {
+            params.set(key, value);
+          } else {
+            params.delete(key);
+          }
+        }
+
+        // Update URL and reload grounds
+        window.history.replaceState(
+          {},
+          "",
+          `${window.location.pathname}?${params.toString()}`
+        );
+        loadGrounds();
+      });
+    }
+  });
+</script>
+{% endblock %}
