@@ -15,6 +15,7 @@
           <div class="bg-light rounded p-4 mb-4">
             <h4 class="mb-3">Booking Details</h4>
 
+            {% if booking %}
             <div class="row mb-3">
               <div class="col-sm-4 text-muted">Booking ID:</div>
               <div class="col-sm-8 fw-bold">{{ booking.id }}</div>
@@ -27,12 +28,12 @@
 
             <div class="row mb-3">
               <div class="col-sm-4 text-muted">Activity:</div>
-              <div class="col-sm-8">{{ booking.slot.activity_type.name }}</div>
+              <div class="col-sm-8">{{ booking.slot.field.activity_type }}</div>
             </div>
 
             <div class="row mb-3">
               <div class="col-sm-4 text-muted">Location:</div>
-              <div class="col-sm-8">{{ booking.slot.location.address }}</div>
+              <div class="col-sm-8">{{ booking.slot.field.location }}</div>
             </div>
 
             <div class="row mb-3">
@@ -48,10 +49,12 @@
               </div>
             </div>
 
+            {% if booking.participants %}
             <div class="row mb-3">
               <div class="col-sm-4 text-muted">Participants:</div>
               <div class="col-sm-8">{{ booking.participants }}</div>
             </div>
+            {% endif %}
 
             <div class="row mb-3">
               <div class="col-sm-4 text-muted">Total Price:</div>
@@ -59,6 +62,7 @@
                 ${{ booking.slot.price }}
               </div>
             </div>
+            {% endif %}
           </div>
 
           <div class="text-center">

@@ -41,16 +41,17 @@
         <div class="card h-100 shadow-sm">
           {% if slot.field.image %}
           <img
-            src="{{ slot.field.image.url|default:slot.field.default_image }}"
+            src="{{ slot.field.image.url }}"
             alt="{{ slot.field.name }}"
             style="height: 200px; object-fit: cover"
           />
           {% else %}
-          <div class="bg-light text-center py-5">
-            <i class="fas fa-image fa-3x text-muted"></i>
-          </div>
+          <img
+            src="{% static 'images/default_field.jpg' %}"
+            alt="{{ slot.field.name }}"
+            style="height: 200px; object-fit: cover"
+          />
           {% endif %}
-
           <div class="card-body">
             <h5 class="card-title">{{ slot.field.name }}</h5>
             <p class="card-text text-muted">{{ slot.field.location }}</p>

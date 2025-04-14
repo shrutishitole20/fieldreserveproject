@@ -26,6 +26,8 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('search-slots/', views.search_slots, name='search_slots'),
     path('book-slot/<int:slot_id>/', views.book_slot, name='book_slot'),
+    path('book-ground/<int:ground_id>/', views.book_ground, name='book_ground'),
+    path('booking-success/', views.booking_success, name='booking_success'),
     path('booking-confirmation/<int:booking_id>/', views.booking_confirmation, name='booking_confirmation'),
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login'),
@@ -35,6 +37,9 @@ urlpatterns = [
     path('activity/', views.activity_selector, name='activity_selector'),
     path('remove-search/<int:search_id>/', views.remove_search, name='remove_search'),
     path('api/nearby-grounds/', views.nearby_grounds_api, name='nearby_grounds_api'),
+    path('cancel-booking/<int:booking_id>/', views.cancel_booking, name='cancel_booking'),
+    path('nearby-grounds/', views.show_nearby_grounds, name='show_nearby_grounds'),
+    path('direct-book-ground/<int:ground_id>/', views.direct_book_ground, name='direct_book_ground'),
 ]
 
 if settings.DEBUG:

@@ -16,4 +16,8 @@ urlpatterns = [
     path('api/nearby-grounds/', views.nearby_grounds_api, name='nearby_grounds_api'),
     path('show-nearby-grounds/', views.show_nearby_grounds, name='show_nearby_grounds'),
     path('activity/', views.activity_selector, name='activity_selector'),
+    path('remove-search/<int:search_id>/', views.remove_search, name='remove_search'),
+    path('nearby-grounds/', views.show_nearby_grounds, name='show_nearby_grounds'),
+    path('direct-book-ground/<int:ground_id>/', views.direct_book_ground, name='direct_book_ground'),
+    
 ]

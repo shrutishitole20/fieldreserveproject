@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from .models import ActivityType, Location, Slot, Booking, Testimonial, SearchHistory, Field
 from .forms import BookingForm, UserRegisterForm, UserLoginForm
 from django.contrib.auth import login, authenticate, logout
+from datetime import datetime
 import math
 import random
 import os
@@ -57,11 +58,13 @@ def search_slots(request):
         'date': date,
     }
     return render(request, 'search_results.html', context)
+
 def activity_selector(request):
     activity_types = ActivityType.objects.all()
     return render(request, 'activity_selector.html', {
         'activity_types': activity_types
     })
+
 @login_required
 def book_slot(request, slot_id):
     slot = get_object_or_404(Slot, id=slot_id)
@@ -83,6 +86,86 @@ def book_slot(request, slot_id):
         'form': form,
     }
     return render(request, 'book_slot.html', context)
+
+@login_required
+def book_ground(request, ground_id):
+    """View to book a ground directly."""
+    try:
+        # Get the ground by ID
+        ground = get_object_or_404(Field, id=ground_id)
+        
+        if request.method == 'POST':
+            # Process the booking
+            activity = request.POST.get('activity')
+            date = request.POST.get('date')
+            time_slot = request.POST.get('time_slot')
+            players = request.POST.get('players')
+            special_requests = request.POST.get('special_requests', '')
+            
+            # Validate the input
+            if not all([activity, date, time_slot, players]):
+                messages.error(request, "Please fill all required fields")
+                return render(request, 'book_ground.html', {
+                    'ground': ground,
+                    'today': datetime.now().date()
+                })
+            
+            # Parse the time slot to get start and end times
+            start_time_str, end_time_str = time_slot.split(' - ')
+            
+            # Convert strings to time objects
+            start_time = datetime.strptime(start_time_str, '%H:%M').time()
+            end_time = datetime.strptime(end_time_str, '%H:%M').time()
+            booking_date = datetime.strptime(date, '%Y-%m-%d').date()
+            
+            # Create or find a time slot
+            slot, created = Slot.objects.get_or_create(
+                field=ground,
+                date=booking_date,
+                start_time=start_time,
+                end_time=end_time,
+                defaults={'price': 500.00, 'available': True}
+            )
+            
+            if not slot.available:
+                messages.error(request, "Sorry, this slot is no longer available")
+                return render(request, 'book_ground.html', {
+                    'ground': ground,
+                    'today': datetime.now().date()
+                })
+            
+            # Create the booking
+            booking = Booking.objects.create(
+                user=request.user,
+                slot=slot,
+                status='confirmed',
+                payment_status='pending'
+            )
+            
+            # Mark the slot as unavailable
+            slot.available = False
+            slot.save()
+            
+            # Success message and redirect
+            messages.success(request, f"Successfully booked {ground.name} for {activity} on {date} at {time_slot}")
+            
+            # Redirect to booking confirmation page with the booking id
+            return redirect('booking_confirmation', booking_id=booking.id)
+        
+        # GET request - show the booking form
+        return render(request, 'book_ground.html', {
+            'ground': ground,
+            'today': datetime.now().date()
+        })
+            
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+        return redirect('index')
+
+@login_required
+def booking_success(request):
+    """View to show booking success page."""
+    return render(request, 'booking_success.html')
 
 @login_required
 def booking_confirmation(request, booking_id):
@@ -126,8 +209,29 @@ def logout_view(request):
 
 @login_required
 def my_bookings(request):
-    bookings = Booking.objects.filter(user=request.user).order_by('-booking_date')
-    return render(request, 'my_bookings.html', {'bookings': bookings})
+    """View to display the user's bookings."""
+    bookings = Booking.objects.filter(user=request.user).order_by('-booking_time')
+    
+    # Process the bookings to make them match the template expectations
+    processed_bookings = []
+    for booking in bookings:
+        processed_booking = {
+            'id': booking.id,
+            'field': {
+                'name': booking.slot.field.name,
+                'location': booking.slot.field.location,
+                'image': booking.slot.field.image
+            },
+            'date': booking.slot.date,
+            'start_time': booking.slot.start_time,
+            'end_time': booking.slot.end_time,
+            'price': booking.slot.price,
+            'slot': booking.slot,
+            'status': booking.status
+        }
+        processed_bookings.append(processed_booking)
+    
+    return render(request, 'my_bookings.html', {'bookings': processed_bookings})
 
 def location_selector(request):
     """View to display the location selection page."""
@@ -162,6 +266,7 @@ def location_selector(request):
     }
     
     return render(request, 'location_selector.html', context)
+
 @login_required
 def remove_search(request, search_id):
     search = get_object_or_404(SearchHistory, id=search_id, user=request.user)
@@ -181,7 +286,6 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     # Radius of earth in kilometers is 6371
     km = 6371 * c
     return km
-
 
 def nearby_grounds_api(request):
     """API endpoint to get nearby grounds based on latitude and longitude or location name."""
@@ -368,9 +472,22 @@ def nearby_grounds_api(request):
 def cancel_booking(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
     
-    booking.delete()
-    messages.success(request, 'Your booking has been cancelled successfully.')
+    if request.method == 'POST':
+        # Make the slot available again
+        booking.slot.available = True
+        booking.slot.save()
+        
+        # Cancel the booking
+        booking.status = 'cancelled'
+        booking.save()
+        
+        messages.success(request, 'Your booking has been cancelled successfully.')
+    else:
+        # Handle the GET request to show confirmation page
+        return render(request, 'cancel_booking.html', {'booking': booking})
+        
     return redirect('my_bookings')
+
 def generate_nearby_grounds(lat, lng):
     """Generate sample grounds near the provided coordinates."""
     # These are mock grounds for demonstration
@@ -430,6 +547,7 @@ def generate_nearby_grounds(lat, lng):
     random_stadiums.sort(key=lambda x: x['distance'])
     
     return random_stadiums
+
 def show_nearby_grounds(request):
     """View to display grounds based on selected location"""
     location = request.GET.get('location', '')
@@ -442,3 +560,76 @@ def show_nearby_grounds(request):
         'lng': lng,
     }
     return render(request, 'nearby_grounds.html', context)
+
+@login_required
+def direct_book_ground(request, ground_id):
+    """View to handle direct booking from nearby grounds page."""
+    try:
+        # First, try to get the ground from the database
+        try:
+            ground = get_object_or_404(Field, id=ground_id)
+            ground_data = {
+                'id': ground.id,
+                'name': ground.name,
+                'location': ground.location,
+                'description': ground.description,
+                'activities': ground.activity_type.split(', '),
+                'indoor': ground.indoor,
+                'image': ground.image.url if ground.image else None
+            }
+        except Field.DoesNotExist:
+            # If not in database, try to find in the mock data
+            mock_data = generate_nearby_grounds(0, 0)
+            ground_data = None
+            
+            for location in mock_data:
+                for g in location['grounds']:
+                    if g['id'] == ground_id:
+                        ground_data = {
+                            'id': g['id'],
+                            'name': g['name'],
+                            'location': location['city'],
+                            'description': g['description'],
+                            'activities': g['activity_type'].split(', '),
+                            'indoor': g['indoor'],
+                            'image': g['image_url'] if 'image_url' in g else None
+                        }
+                        break
+                        
+            if ground_data is None:
+                # Check state data
+                state_grounds = {
+                    'kerala': [...],  # Keep existing state grounds data
+                    'tamil nadu': [...],
+                    'maharashtra': [...],
+                    'karnataka': [...]
+                }
+                
+                # Search through all states
+                for state, locations in state_grounds.items():
+                    for location in locations:
+                        for g in location['grounds']:
+                            if g['id'] == ground_id:
+                                ground_data = {
+                                    'id': g['id'],
+                                    'name': g['name'],
+                                    'location': location['city'],
+                                    'description': g['description'],
+                                    'activities': g['activity_type'].split(', '),
+                                    'indoor': g['indoor'],
+                                    'image': g['image_url'] if 'image_url' in g else None
+                                }
+                                break
+                
+                if ground_data is None:
+                    raise Exception("Ground not found")
+        
+        # Render the booking form with the ground data
+        return render(request, 'book_ground.html', {
+            'ground': ground_data,
+            'today': datetime.now().date()
+        })
+        
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+        return redirect('show_nearby_grounds')
