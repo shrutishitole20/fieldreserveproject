@@ -12,7 +12,7 @@ class ActivityType(models.Model):
 class Location(models.Model):
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=200)
-    city = models.CharField(max_length=100, default='') 
+    city = models.CharField(max_length=100, blank=True) 
     latitude = models.FloatField(null=True, blank=True) 
     longitude = models.FloatField(null=True, blank=True)  
     is_featured = models.BooleanField(default=False)

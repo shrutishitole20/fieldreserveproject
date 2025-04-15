@@ -1,4 +1,7 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} {% load static %}
+<!-- Add this -->
+
+{% block content %}
 <section class="py-5">
   <div class="container">
     <h1 class="mb-4">Search Results</h1>
@@ -46,12 +49,9 @@
             style="height: 200px; object-fit: cover"
           />
           {% else %}
-          <img
-            src="{% static 'images/default_field.jpg' %}"
-            alt="{{ slot.field.name }}"
-            style="height: 200px; object-fit: cover"
-          />
-          {% endif %}
+          <img src="{% static 'images/default_field.jpg' %}" <!-- Line 50 -- />
+          alt="{{ slot.field.name }}" style="height: 200px; object-fit: cover"
+          /> {% endif %}
           <div class="card-body">
             <h5 class="card-title">{{ slot.field.name }}</h5>
             <p class="card-text text-muted">{{ slot.field.location }}</p>
@@ -95,7 +95,7 @@
             href="?page={{ page_obj.previous_page_number }}&activity={{ activity }}&location={{ location }}&date={{ date }}"
             aria-label="Previous"
           >
-            <span aria-hidden="true">&laquo;</span>
+            <span aria-hidden="true">«</span>
           </a>
         </li>
         {% endif %} {% for i in paginator.page_range %}
@@ -113,7 +113,7 @@
             href="?page={{ page_obj.next_page_number }}&activity={{ activity }}&location={{ location }}&date={{ date }}"
             aria-label="Next"
           >
-            <span aria-hidden="true">&raquo;</span>
+            <span aria-hidden="true">»</span>
           </a>
         </li>
         {% endif %}
