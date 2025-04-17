@@ -26,52 +26,42 @@ def search_slots(request):
     activity = request.GET.get('activity', '')
     location = request.GET.get('location', '')
     date = request.GET.get('date', '')
-    
-    slots = Slot.objects.all()
-    
-    # Handle geolocation filtering
-    if 'lat' in request.GET and 'lng' in request.GET:
-        try:
-            lat = float(request.GET.get('lat'))
-            lng = float(request.GET.get('lng'))
-            location = "Current Location"
-            if request.user.is_authenticated:
-                SearchHistory.objects.create(user=request.user, search_term=location)
-            # Filter by approximate proximity (~10km)
-            slots = slots.filter(
-                field__location__latitude__range=(lat - 0.1, lat + 0.1),
-                field__location__longitude__range=(lng - 0.1, lng + 0.1)
-            )
-        except ValueError:
-            messages.warning(request, "Invalid coordinates provided. Using location name instead.")
-            # Fallback to string-based filtering if location is provided
-            if location and location != "Current Location":
-                slots = slots.filter(field__location__name__icontains=location)
-    # Handle string-based location filtering
-    elif location:
-        slots = slots.filter(field__location__name__icontains=location)  # Fixed: use name, not icontains directly
-        if request.user.is_authenticated:
-            SearchHistory.objects.create(user=request.user, search_term=location)
-    
-    # Apply other filters
-    if activity:
-        slots = slots.filterslots = slots.filter(field__activity_type__name__icontains=activity)
 
+    # Start with all available slots
+    slots = Slot.objects.all()
+
+    # Filter by location
+    if location:
+        slots = slots.filter(field__location__name__icontains=location)
+
+    # Filter by activity
+    if activity:
+        slots = slots.filter(field__activity_type__name__icontains=activity)
+
+    # Filter by date
     if date:
-        slots = slots.filter(date=date)
-    
-    # Set default image for slots with missing field images
-    for slot in slots:
-        if not slot.field.image or not os.path.exists(slot.field.image.path):
-            slot.field.default_image = '/static/images/placeholder.jpg'
-    
-    context = {
+        try:
+            slots = slots.filter(date=date)
+        except ValueError:
+            messages.warning(request, "Invalid date format. Please use YYYY-MM-DD.")
+
+    # Check if slots exist
+    if not slots.exists():
+        messages.warning(request, "No results found. Please try different search parameters.")
+        return render(request, 'search_results.html', {
+            'slots': [],
+            'activity': activity,
+            'location': location,
+            'date': date,
+        })
+
+    # Pass found slots to the template
+    return render(request, 'search_results.html', {
         'slots': slots,
         'activity': activity,
         'location': location,
         'date': date,
-    }
-    return render(request, 'search_results.html', context)
+    })
 
 def activity_selector(request):
     activity_types = ActivityType.objects.all()

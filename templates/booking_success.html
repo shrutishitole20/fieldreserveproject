@@ -1,0 +1,88 @@
+{% extends 'base.html' %} {% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0">
+          <div class="card-body text-center py-5">
+            <div class="mb-4">
+              <span class="badge bg-success p-3 rounded-circle">
+                <i class="fas fa-check-circle fa-3x text-white"></i>
+              </span>
+            </div>
+
+            <h2 class="mb-3">Booking Confirmed!</h2>
+            <p class="lead text-muted mb-4">
+              Your booking has been successfully confirmed.
+            </p>
+
+            {% if booking %}
+            <div class="card mb-4">
+              <div class="card-body">
+                <h5 class="card-title mb-3">Booking Details</h5>
+
+                <div class="row">
+                  <div class="col-5 text-start text-muted">Ground:</div>
+                  <div class="col-7 text-end fw-bold">
+                    {{ booking.slot.field.name }}
+                  </div>
+                </div>
+                <hr />
+
+                <div class="row">
+                  <div class="col-5 text-start text-muted">Date:</div>
+                  <div class="col-7 text-end fw-bold">
+                    {{ booking.slot.date|date:"F j, Y" }}
+                  </div>
+                </div>
+                <hr />
+
+                <div class="row">
+                  <div class="col-5 text-start text-muted">Time:</div>
+                  <div class="col-7 text-end fw-bold">
+                    From {{ booking.slot.start_time }} to {{
+                    booking.slot.end_time }}
+                  </div>
+                </div>
+                <hr />
+
+                <div class="row">
+                  <div class="col-5 text-start text-muted">Activity:</div>
+                  <div class="col-7 text-end fw-bold">
+                    {{ booking.slot.field.activity_type }}
+                  </div>
+                </div>
+                <hr />
+
+                <div class="row">
+                  <div class="col-5 text-start text-muted">Booking ID:</div>
+                  <div class="col-7 text-end fw-bold">
+                    {{ booking.booking_id }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+            <p class="text-muted mb-4">
+              We've sent you an email with all the details of your booking. You
+              can also view your booking in the "My Bookings" section.
+            </p>
+
+            <div class="d-grid gap-3">
+              <a href="{% url 'my_bookings' %}" class="btn btn-primary">
+                <i class="fas fa-list me-2"></i>
+                View My Bookings
+              </a>
+              <a href="{% url 'index' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-home me-2"></i>
+                Back to Home
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

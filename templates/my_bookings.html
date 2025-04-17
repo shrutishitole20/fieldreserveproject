@@ -7,11 +7,11 @@
     {% for booking in bookings %}
     <div class="col-md-6 col-lg-4">
       <div class="card h-100 shadow-sm">
-        {% if booking.field.image %}
+        {% if booking.slot.field.image %}
         <img
-          src="{{ booking.field.image.url }}"
+          src="{{ booking.slot.field.image.url }}"
           class="card-img-top"
-          alt="{{ booking.field.name }}"
+          alt="{{ booking.slot.field.name }}"
           style="height: 200px; object-fit: cover"
         />
         {% else %}
@@ -20,17 +20,17 @@
         </div>
         {% endif %}
         <div class="card-body">
-          <h5 class="card-title mb-0">{{ booking.field.name }}</h5>
+          <h5 class="card-title mb-0">{{ booking.slot.field.name }}</h5>
           <p class="card-subtitle text-secondary mb-3">
-            {{ booking.field.location }}
+            {{ booking.slot.field.location }}
           </p>
           <p class="mb-2">
             <i class="far fa-clock me-2"></i>
-            {{ booking.date|date:"F j, Y" }} at {{ booking.start_time|time:"g:i
-            A" }} - {{ booking.end_time|time:"g:i A" }}
+            {{ booking.slot.date|date:"F j, Y" }} from {{
+            booking.slot.start_time }} to {{ booking.slot.end_time }}
           </p>
           <p class="card-text text-primary fw-semibold mb-3">
-            Price: ${{ booking.price }}
+            Price: Rs.{{ booking.slot.price }}
           </p>
           <div class="d-grid gap-2">
             <a
