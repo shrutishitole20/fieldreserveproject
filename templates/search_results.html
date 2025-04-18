@@ -45,38 +45,32 @@
           {% if slot.field.image %}
           <img
             src="{{ slot.field.image.url }}"
+            class="card-img-top"
             alt="{{ slot.field.name }}"
             style="height: 200px; object-fit: cover"
           />
           {% else %}
-          <img src="{% static 'images/default_field.jpg' %}" <!-- Line 50 -- />
-          alt="{{ slot.field.name }}" style="height: 200px; object-fit: cover"
-          /> {% endif %}
+          <div class="bg-light text-center py-5">
+            <i class="fas fa-image fa-3x text-muted"></i>
+          </div>
+          {% endif %}
           <div class="card-body">
-            <h5 class="card-title">{{ slot.field.name }}</h5>
-            <p class="card-text text-muted">{{ slot.field.location }}</p>
-
-            <div class="d-flex align-items-center mb-3">
-              <span class="badge bg-primary me-2"
-                >{{ slot.field.activity_type }}</span
-              >
-              {% if slot.field.indoor %}
-              <span class="badge bg-info me-2">Indoor</span>
-              {% else %}
-              <span class="badge bg-success me-2">Outdoor</span>
-              {% endif %}
-            </div>
-
-            <p>
-              <i class="far fa-clock me-2"></i>{{ slot.start_time }} - {{
+            <h5 class="card-title mb-0">{{ slot.field.name }}</h5>
+            <p class="card-subtitle text-secondary mb-3">
+              {{ slot.field.location }}
+            </p>
+            <p class="mb-2">
+              <i class="far fa-clock me-2"></i>
+              {{ slot.date|date:"F j, Y" }} from {{ slot.start_time }} to {{
               slot.end_time }}
             </p>
-            <p><i class="fas fa-tag me-2"></i>${{ slot.price }}</p>
-
+            <p class="card-text text-primary fw-semibold mb-3">
+              Price: Rs.{{ slot.price }}
+            </p>
             <div class="d-grid gap-2">
-              <a href="{% url 'book_slot' slot.id %}" class="btn btn-primary">
-                Book Now
-              </a>
+              <a href="{% url 'book_slot' slot.id %}" class="btn btn-success"
+                >Book Now</a
+              >
             </div>
           </div>
         </div>
@@ -120,44 +114,12 @@
       </ul>
     </nav>
     {% endif %} {% else %}
-    <div class="alert alert-info">
-      <h4 class="alert-heading">
-        <i class="fas fa-info-circle me-2"></i>No results found
-      </h4>
+    <div class="alert alert-warning text-center">
+      <p>We couldn't find any available slots matching your search criteria.</p>
+      <p>Please try different search parameters or check back later.</p>
       <p>
-        We couldn't find any available slots matching your search criteria.
-        Please try different search parameters or check back later.
+        Need help? <a href="/contact-support/">Contact our support team</a>.
       </p>
-      <hr />
-      <p class="mb-0">
-        Need help? <a href="#" class="alert-link">Contact our support team</a>.
-      </p>
-    </div>
-
-    <div class="mt-4">
-      <h5>Popular Locations</h5>
-      <div class="row g-3 mt-2">
-        <div class="col-6 col-md-4 col-lg-3">
-          <a href="?location=Pune" class="btn btn-outline-secondary w-100"
-            >Pune</a
-          >
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-          <a href="?location=Mumbai" class="btn btn-outline-secondary w-100"
-            >Mumbai</a
-          >
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-          <a href="?location=Delhi" class="btn btn-outline-secondary w-100"
-            >Delhi</a
-          >
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-          <a href="?location=Channai" class="btn btn-outline-secondary w-100"
-            >Channai</a
-          >
-        </div>
-      </div>
     </div>
     {% endif %}
   </div>

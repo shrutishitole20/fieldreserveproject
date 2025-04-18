@@ -1,14 +1,39 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} {% load static %} {% block content %}
 <!-- Hero Section -->
-<section class="hero min-vh-100 d-flex align-items-center">
-  <div class="container">
+<section
+  class="hero min-vh-100 d-flex align-items-center bg-light-blue position-relative"
+  style="
+    background: linear-gradient(
+      to bottom,
+      rgba(224, 247, 250, 0.8),
+      rgba(255, 255, 255, 0.9)
+    );
+  "
+>
+  <!-- Video Background -->
+  <video
+    autoplay
+    muted
+    loop
+    playsinline
+    class="position-absolute w-100 h-100"
+    style="object-fit: cover; z-index: -1"
+    id="background-video"
+  >
+    <source
+      src="{% static 'videos/Fieldreservevideo.mp4' %}"
+      type="video/mp4"
+    />
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="container text-dark">
     <div class="row align-items-center">
       <div class="col-lg-6 text-center text-lg-start">
-        <div class="badge bg-primary-light text-primary mb-3">
-          <i class="fas fa-calendar-alt me-2"></i>
-          Book your perfect spot in seconds
-        </div>
-        <h1 class="display-4 fw-bold mb-4">
+        <h1
+          class="display-4 fw-bold mb-4"
+          style="color: black; font-weight: bold"
+        >
           Find and Book the <span class="text-gradient">Perfect Spot</span> for
           Your Activity
         </h1>
@@ -25,75 +50,6 @@
             How It Works
             <i class="fas fa-arrow-right ms-2"></i>
           </a>
-        </div>
-      </div>
-      <div class="col-lg-6 mt-5 mt-lg-0">
-        <div class="card shadow-lg">
-          <div class="card-body p-4">
-            <h4 class="card-title mb-4">Search Available Spots</h4>
-            <form
-              action="{% url 'search_slots' %}"
-              method="GET"
-              id="search-form"
-            >
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label">Activity Type</label>
-                  <div class="position-relative">
-                    <select
-                      name="activity"
-                      id="activitySelect"
-                      class="form-select"
-                    >
-                      <option value="">Select activity</option>
-                      {% for activity in activity_types %}
-                      <option value="{{ activity.name }}">
-                        {{ activity.name }}
-                      </option>
-                      {% endfor %}
-                    </select>
-                    <a
-                      href="{% url 'activity_selector' %}"
-                      class="position-absolute end-0 top-0 btn btn-link"
-                    >
-                      <i class="fas fa-chevron-right"></i>
-                    </a>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label">Location</label>
-                  <div class="position-relative">
-                    <input
-                      type="text"
-                      name="location"
-                      class="form-control"
-                      placeholder="Enter city or area"
-                    />
-                    <a
-                      href="{% url 'location_selector' %}"
-                      class="position-absolute end-0 top-0 btn btn-link"
-                    >
-                      <i class="fas fa-map-marker-alt"></i>
-                    </a>
-                  </div>
-                </div>
-                <div class="col-12">
-                  <label class="form-label">Date</label>
-                  <input
-                    type="date"
-                    name="date"
-                    id="dateInput"
-                    class="form-control"
-                  />
-                </div>
-                <div class="col-12">
-                  <button type="submit" class="btn btn-primary w-100 py-3">
-                    Search Available Spots
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
         </div>
       </div>
     </div>
@@ -230,34 +186,25 @@
       <div class="col-md-6 col-lg-4">
         <div class="card h-100 border-0 shadow-sm p-4">
           <div class="mb-3">
-            {% for i in "12345" %}<!-- Loop for stars -->
+            {% for i in "12345" %}
+            <!-- Loop for stars -->
             {% if forloop.counter <= testimonial.rating %}
             <i class="fas fa-star text-warning"></i>
             {% else %}
             <i class="far fa-star text-muted"></i>
             {% endif %} {% endfor %}
           </div>
-          <p class="card-text fst-italic mb-4">"{{ testimonial.quote }}"</p>
+          <p class="card-text fst-italic mb-4">"{{ testimonial.content }}"</p>
           <div class="d-flex align-items-center mt-auto">
-            {% if testimonial.image %}
-            <img
-              src="{{ testimonial.image.url }}"
-              class="rounded-circle me-3"
-              width="48"
-              height="48"
-              alt="{{ testimonial.name }}"
-            />
-            {% else %}
             <div
               class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
               style="width: 48px; height: 48px"
             >
-              {{ testimonial.name.0 }}
+              {{ testimonial.user.username.0 }}
             </div>
-            {% endif %}
             <div>
-              <h6 class="mb-0">{{ testimonial.name }}</h6>
-              <small class="text-muted">{{ testimonial.role }}</small>
+              <h6 class="mb-0">{{ testimonial.user.username }}</h6>
+              <small class="text-muted">{{ testimonial.user.email }}</small>
             </div>
           </div>
         </div>
@@ -287,27 +234,5 @@
     </div>
   </div>
 </div>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    // Load saved activity from local storage if available
-    const savedActivity = localStorage.getItem("selectedActivity");
-    const activitySelect = document.getElementById("activitySelect");
-    const urlParams = new URLSearchParams(window.location.search);
-    const activityParam = urlParams.get("activity");
-
-    // Priority: URL parameter > localStorage value
-    if (activityParam && activitySelect) {
-      activitySelect.value = activityParam;
-    } else if (savedActivity && activitySelect) {
-      activitySelect.value = savedActivity;
-    }
-
-    // Optional: Clear localStorage after using it
-    if (activityParam) {
-      localStorage.removeItem("selectedActivity");
-    }
-  });
-</script>
 
 {% endblock %}

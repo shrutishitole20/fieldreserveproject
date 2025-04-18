@@ -40,6 +40,7 @@ urlpatterns = [
     path('cancel-booking/<int:booking_id>/', views.cancel_booking, name='cancel_booking'),
     path('nearby-grounds/', views.show_nearby_grounds, name='show_nearby_grounds'),
     path('direct-book-ground/<int:ground_id>/', views.direct_book_ground, name='direct_book_ground'),
+    path('contact-support/', views.contact_support, name='contact_support'),
 ]
 
 if settings.DEBUG:

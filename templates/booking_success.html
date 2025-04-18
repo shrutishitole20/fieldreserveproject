@@ -40,8 +40,8 @@
                 <div class="row">
                   <div class="col-5 text-start text-muted">Time:</div>
                   <div class="col-7 text-end fw-bold">
-                    From {{ booking.slot.start_time }} to {{
-                    booking.slot.end_time }}
+                    From {{ booking.slot.start_time|time:"g:i A" }} to {{
+                    booking.slot.end_time|time:"g:i A" }}
                   </div>
                 </div>
                 <hr />

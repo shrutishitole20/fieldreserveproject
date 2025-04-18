@@ -12,7 +12,7 @@ class ActivityType(models.Model):
 class Location(models.Model):
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=200)
-    city = models.CharField(max_length=100, blank=True) 
+    city = models.CharField(max_length=100, blank=True)  # Ensure this field is populated correctly
     latitude = models.FloatField(null=True, blank=True) 
     longitude = models.FloatField(null=True, blank=True)  
     is_featured = models.BooleanField(default=False)
@@ -48,6 +48,8 @@ class Slot(models.Model):
     def save(self, *args, **kwargs):
         if self.available_slots is None:
             self.available_slots = self.capacity
+        if self.capacity > 0:
+            self.available = True
         super().save(*args, **kwargs)
 
     def clean(self):

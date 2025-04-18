@@ -27,7 +27,8 @@
           <p class="mb-2">
             <i class="far fa-clock me-2"></i>
             {{ booking.slot.date|date:"F j, Y" }} from {{
-            booking.slot.start_time }} to {{ booking.slot.end_time }}
+            booking.slot.start_time|time:"g:i A" }} to {{
+            booking.slot.end_time|time:"g:i A" }}
           </p>
           <p class="card-text text-primary fw-semibold mb-3">
             Price: Rs.{{ booking.slot.price }}

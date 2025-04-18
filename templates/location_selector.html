@@ -119,111 +119,37 @@
 
     // Function to load and display grounds
     function loadGrounds(url) {
-      // Show the container and loading spinner
       nearbyGroundsContainer.classList.remove("d-none");
       nearbyGroundsList.innerHTML =
-        '<div class="col-12 text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-
-      // Fetch nearby grounds from our API
+        '<div class="spinner-border text-primary"></div>';
       fetch(url)
         .then((response) => response.json())
         .then((data) => {
-          // Clear the loading spinner
           nearbyGroundsList.innerHTML = "";
-
           if (data.grounds && data.grounds.length > 0) {
-            // Display the nearby grounds
             data.grounds.forEach((location) => {
-              // If location has no grounds, skip
-              if (!location.grounds || location.grounds.length === 0) return;
-
               location.grounds.forEach((ground) => {
-                const groundCard = document.createElement("div");
-                groundCard.className = "col-md-12";
-
-                const imageSrc =
-                  ground.image_url || "/static/images/grounds/placeholder.jpg";
-
-                let activityIcons = "";
-                if (ground.activity_type) {
-                  if (ground.activity_type.includes("football")) {
-                    activityIcons += '<span class="me-2">⚽</span>';
-                  }
-                  if (ground.activity_type.includes("cricket")) {
-                    activityIcons += '<span class="me-2">🏏</span>';
-                  }
-                  if (ground.activity_type.includes("basketball")) {
-                    activityIcons += '<span class="me-2">🏀</span>';
-                  }
-                  if (ground.activity_type.includes("running")) {
-                    activityIcons += '<span class="me-2">🏃</span>';
-                  }
-                  if (ground.activity_type.includes("volleyball")) {
-                    activityIcons += '<span class="me-2">🏐</span>';
-                  }
-                  if (ground.activity_type.includes("tennis")) {
-                    activityIcons += '<span class="me-2">🎾</span>';
-                  }
-                }
-
-                groundCard.innerHTML = `
-                                    <div class="card mb-3">
-                                        <div class="row g-0">
-                                            <div class="col-md-3">
-                                                <img src="${imageSrc}" class="img-fluid rounded-start" alt="${
-                  ground.name
-                }" style="height: 100%; object-fit: cover;">
-                                            </div>
-                                            <div class="col-md-9">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">${
-                                                      ground.name
-                                                    }</h5>
-                                                    <p class="card-text text-muted">${
-                                                      ground.description
-                                                    }</p>
-                                                    
-                                                    <div class="d-flex justify-content-start mb-3">
-                                                        ${activityIcons}
-                                                    </div>
-                                                    
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <span class="text-success">
-                                                            <i class="fas fa-map-marker-alt me-1"></i> ${
-                                                              location.distance
-                                                            } km
-                                                        </span>
-                                                        <a href="/search-slots/?location=${encodeURIComponent(
-                                                          location.city
-                                                        )}" class="btn btn-success">
-                                                            Book Now <i class="fas fa-arrow-right ms-1"></i>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-
-                nearbyGroundsList.appendChild(groundCard);
+                const groundCard = `
+                  <div class="card mb-3">
+                    <img src="${ground.image_url}" class="card-img-top" alt="${ground.name}">
+                    <div class="card-body">
+                      <h5 class="card-title">${ground.name}</h5>
+                      <p class="card-text">${ground.description}</p>
+                      <p class="text-muted">Activity: ${ground.activity_type}</p>
+                      <a href="/direct-book-ground/${ground.id}/" class="btn btn-success">Book Now</a>
+                    </div>
+                  </div>`;
+                nearbyGroundsList.innerHTML += groundCard;
               });
             });
           } else {
-            // No grounds found
-            nearbyGroundsList.innerHTML = `
-                            <div class="col-12 text-center py-4">
-                                <p class="lead">No playgrounds found near your location.</p>
-                            </div>
-                        `;
+            nearbyGroundsList.innerHTML =
+              "<p>No grounds found near your location.</p>";
           }
         })
-        .catch((error) => {
-          console.error("Error fetching nearby grounds:", error);
-          nearbyGroundsList.innerHTML = `
-                        <div class="col-12 text-center py-4">
-                            <p class="text-danger">Failed to load nearby playgrounds. Please try again.</p>
-                        </div>
-                    `;
+        .catch(() => {
+          nearbyGroundsList.innerHTML =
+            "<p>Error loading grounds. Please try again.</p>";
         });
     }
 

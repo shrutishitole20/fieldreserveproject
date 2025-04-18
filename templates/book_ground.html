@@ -1,0 +1,39 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container py-5">
+  <h2>Book {{ ground.name }}</h2>
+  <p>{{ ground.description }}</p>
+  <img
+    src="{{ ground.image.url }}"
+    alt="{{ ground.name }}"
+    class="img-fluid mb-4"
+  />
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="date" class="form-label">Date</label>
+      <input type="date" id="date" name="date" class="form-control" required />
+    </div>
+    <div class="mb-3">
+      <label for="start_time" class="form-label">Start Time</label>
+      <input
+        type="time"
+        id="start_time"
+        name="start_time"
+        class="form-control"
+        required
+      />
+    </div>
+    <div class="mb-3">
+      <label for="end_time" class="form-label">End Time</label>
+      <input
+        type="time"
+        id="end_time"
+        name="end_time"
+        class="form-control"
+        required
+      />
+    </div>
+    <button type="submit" class="btn btn-primary">Book Now</button>
+  </form>
+</div>
+{% endblock %}
