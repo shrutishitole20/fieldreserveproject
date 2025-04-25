@@ -147,4 +147,9 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
 }
 
+# Custom setting for superuser email
+SUPERUSER_EMAIL = 'ShrutiShitole2030@gmail.com'
+# Dummy email backend for development (doesn't actually send emails)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 

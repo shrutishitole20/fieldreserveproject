@@ -27,31 +27,56 @@
           >
         </li>
       </ul>
-      <div class="d-flex">
+      <div class="d-flex align-items-center">
         {% if user.is_authenticated %}
-        <a href="{% url 'my_bookings' %}" class="btn btn-outline-primary me-2"
-          >My Bookings</a
-        >
-        <a href="{% url 'logout' %}" class="btn btn-outline-secondary"
-          >Logout</a
-        >
+        <div class="d-flex align-items-center">
+          <span class="text-primary fw-bold me-3">{{ user.username }}</span>
+          <div class="dropdown">
+            <button
+              class="btn btn-outline-primary dropdown-toggle"
+              type="button"
+              id="userDropdown"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              User Info
+            </button>
+            <ul
+              class="dropdown-menu dropdown-menu-end"
+              aria-labelledby="userDropdown"
+            >
+              <li>
+                <span class="dropdown-item-text">
+                  <strong>Email:</strong> {{ user.email }}
+                </span>
+              </li>
+              <li>
+                <span class="dropdown-item-text">
+                  <strong>First Name:</strong> {{ user.first_name }}
+                </span>
+              </li>
+              <li>
+                <span class="dropdown-item-text">
+                  <strong>Last Name:</strong> {{ user.last_name }}
+                </span>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <a class="dropdown-item text-danger" href="{% url 'logout' %}"
+                  >Logout</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
         {% else %}
         <a href="{% url 'login' %}" class="btn btn-outline-primary me-2"
           >Login</a
         >
-        <a href="{% url 'register' %}" class="btn btn-primary">Sign Up</a>
         {% endif %}
       </div>
     </div>
   </div>
 </nav>
-<script>
-  document.addEventListener("scroll", function () {
-    const navbar = document.querySelector(".navbar");
-    if (window.scrollY > 50) {
-      navbar.classList.add("bg-light-blue", "shadow");
-    } else {
-      navbar.classList.remove("bg-light-blue", "shadow");
-    }
-  });
-</script>
