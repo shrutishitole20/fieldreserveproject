@@ -24,12 +24,13 @@
           <p class="card-subtitle text-secondary mb-3">
             {{ booking.slot.field.location }}
           </p>
-          <p class="mb-2">
-            <i class="far fa-clock me-2"></i>
-            {{ booking.slot.date|date:"F j, Y" }} from {{
-            booking.slot.start_time|time:"g:i A" }} to {{
-            booking.slot.end_time|time:"g:i A" }}
-          </p>
+          <div class="row mb-3">
+            <div class="col-sm-4 text-muted">Time:</div>
+            <div class="col-sm-8">
+              From {{ booking.slot.start_time|time:"g:i A" }} to {{
+              booking.slot.end_time|time:"g:i A" }}
+            </div>
+          </div>
           <p class="card-text text-primary fw-semibold mb-3">
             Price: Rs.{{ booking.slot.price }}
           </p>

@@ -74,6 +74,24 @@ def activity_selector(request):
         'activity_types': activity_types
     })
 
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        # Authenticate the user
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            # If the user is authenticated, log them in
+            login(request, user)
+            messages.success(request, 'Login successful!')
+            return redirect('home')  # Redirect to a success page or home page
+        else:
+            # If authentication fails, show an error message
+            messages.error(request, 'Invalid username or password.')
+    
+    return render(request, 'booking/login.html')
 @login_required
 def book_slot(request, slot_id):
     slot = get_object_or_404(Slot, id=slot_id)
@@ -86,6 +104,16 @@ def book_slot(request, slot_id):
             booking.slot = slot
             booking.save()
             messages.success(request, 'Booking successful!')
+
+            # Send email notification to superuser
+            send_mail(
+                'New Booking Notification',
+                f'User  {request.user.username} has booked a slot on {slot.date}.',
+                'your-email@example.com',  # Replace with your sender email
+                ['Shrutishitole2030@gmail.com'],  # Replace with the superuser's email
+                fail_silently=False,
+            )
+
             return redirect('booking_confirmation', booking_id=booking.id)
     else:
         form = BookingForm(initial={'participants': 1})
@@ -95,6 +123,7 @@ def book_slot(request, slot_id):
         'form': form,
     }
     return render(request, 'book_slot.html', context)
+
 
 @login_required
 def book_ground(request, ground_id):
