@@ -382,21 +382,6 @@ def nearby_grounds_api(request):
     else:
         return JsonResponse({'error': 'Either location or coordinates (lat/lng) are required'}, status=400)
 
-@login_required
-def cancel_booking(request, booking_id):
-    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
-    if request.method == 'POST':
-        # Make the slot available again
-        booking.slot.available = True
-        booking.slot.save()
-        # Cancel the booking
-        booking.status = 'cancelled'
-        booking.save()
-        messages.success(request, 'Your booking has been cancelled successfully.')
-    else:
-        # Handle the GET request to show confirmation page
-        return render(request, 'cancel_booking.html', {'booking': booking})
-    return redirect('my_bookings')
 
 def generate_nearby_grounds(lat, lng):
     """Generate sample grounds near the provided coordinates."""
@@ -505,3 +490,13 @@ def direct_book_ground(request, ground_id):
 def contact_support(request):
     """View to display the contact support page."""
     return render(request, 'contact_support.html')
+def booking_list(request):
+    # Get bookings for the logged-in user
+    user_bookings = Booking.objects.filter(user=request.user).order_by('-date')
+
+    context = {
+        'bookings': user_bookings
+    }
+    return render(request, 'booking_list.html', context)
+
+

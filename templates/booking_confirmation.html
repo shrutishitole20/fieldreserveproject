@@ -45,8 +45,9 @@
             <div class="row mb-3">
               <div class="col-sm-4 text-muted">Time:</div>
               <div class="col-sm-8">
-                From {{ booking.slot.start_time|time:"g:i A" }} to {{
-                booking.slot.end_time|time:"g:i A" }}
+                From {{ booking.slot.start_time|time:"g:i A" }} to
+                <!--hello!-->
+                {{ booking.slot.end_time|time:"g:i A" }}
               </div>
             </div>
 

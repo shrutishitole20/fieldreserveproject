@@ -157,3 +157,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #EMAIL_USE_TLS = True
 #EMAIL_HOST_USER = 'Shrutishitole2030@gmail.com'
 #EMAIL_HOST_PASSWORD = 'Shruti@4848'
+
+RAZORPAY_API_KEY = 'rzp_test_crwDMPwYsFrCMs'
+RAZORPAY_API_SECRET = 'uohdqRTM7RzXK0Yt6Ev8KifA'  

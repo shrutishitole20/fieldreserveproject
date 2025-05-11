@@ -23,6 +23,7 @@ from booking import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('booking.urls')),
+    path('payments/', include('payments.urls')),
     path('', views.index, name='index'),
     path('search-slots/', views.search_slots, name='search_slots'),
     path('book-slot/<int:slot_id>/', views.book_slot, name='book_slot'),
@@ -37,7 +38,7 @@ urlpatterns = [
     path('activity/', views.activity_selector, name='activity_selector'),
     path('remove-search/<int:search_id>/', views.remove_search, name='remove_search'),
     path('api/nearby-grounds/', views.nearby_grounds_api, name='nearby_grounds_api'),
-    path('cancel-booking/<int:booking_id>/', views.cancel_booking, name='cancel_booking'),
+    
     path('nearby-grounds/', views.show_nearby_grounds, name='show_nearby_grounds'),
     path('direct-book-ground/<int:ground_id>/', views.direct_book_ground, name='direct_book_ground'),
     path('contact-support/', views.contact_support, name='contact_support'),
