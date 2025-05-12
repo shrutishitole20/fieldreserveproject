@@ -25,10 +25,7 @@ def payment(request, booking_id):
         })
         order_id = order['id']
         
-        # Update booking status
-        booking.payment_status = 'COMPLETED'
-        booking.status = 'PAID'
-        booking.save()  # Save changes to the database
+        
     except Exception as e:
         # Handle Razorpay order creation failure
         return render(request, 'payments/payment.html', {

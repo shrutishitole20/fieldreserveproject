@@ -214,6 +214,9 @@ def booking_success(request):
 @login_required
 def booking_confirmation(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    booking.payment_status = 'COMPLETED'
+    booking.status = 'PAID'
+    booking.save()  # Save changes to the database
     return render(request, 'booking_confirmation.html', {'booking': booking})
 
 def register(request):
@@ -486,7 +489,7 @@ def direct_book_ground(request, ground_id):
 
             # Success message and redirect
             messages.success(request, f"Successfully booked {ground.name} on {date} from {start_time} to {end_time}.")
-            return redirect('booking_confirmation', booking_id=booking.id)
+            return redirect('payment', booking_id=booking.id)
 
         except ValueError:
             messages.error(request, "Invalid date or time format.")
