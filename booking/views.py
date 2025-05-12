@@ -9,6 +9,7 @@ from datetime import datetime
 import math
 import random
 import os
+from django.core.mail import send_mail
 
 def index(request):
     featured_locations = Location.objects.filter(is_featured=True)[:2]
@@ -102,19 +103,24 @@ def book_slot(request, slot_id):
             booking = form.save(commit=False)
             booking.user = request.user
             booking.slot = slot
+            booking.status = 'CONFIRMED'
             booking.save()
             messages.success(request, 'Booking successful!')
 
             # Send email notification to superuser
-            send_mail(
-                'New Booking Notification',
-                f'User  {request.user.username} has booked a slot on {slot.date}.',
-                'your-email@example.com',  # Replace with your sender email
-                ['Shrutishitole2030@gmail.com'],  # Replace with the superuser's email
-                fail_silently=False,
-            )
+            try:
+                send_mail(
+                    'New Booking Notification',
+                    f'User  {request.user.username} has booked a slot on {slot.date}.',
+                    'your-email@example.com',  # Replace with your sender email
+                    ['Shrutishitole2030@gmail.com'],  # Replace with the superuser's email
+                    fail_silently=False,
+                )
+            except Exception as e:
+                # Log the error or provide feedback to the user
+                messages.error(request, f"Booking successful, but failed to send email notification: {str(e)}")
 
-            return redirect('booking_confirmation', booking_id=booking.id)
+            return redirect('payment', booking_id=booking.id)
     else:
         form = BookingForm(initial={'participants': 1})
     
@@ -270,39 +276,42 @@ def my_bookings(request):
         processed_bookings.append(processed_booking)
     
     return render(request, 'my_bookings.html', {'bookings': processed_bookings})
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from booking.models import SearchHistory
 
 def location_selector(request):
-    """View to display the location selection page."""
-    # Get recent searches if user is logged in
+    """View to display the location selection page with Indian states."""
+    # Get recent searches if user is authenticated
     recent_searches = []
     if request.user.is_authenticated:
         recent_searches = SearchHistory.objects.filter(user=request.user).order_by('-created_at')[:5]
-    
-    # Get list of states - in a real app this would be from database
-    states = [
-        {'id': 'kerala', 'name': 'Kerala', 'image': 'kerala.png'},
-        {'id': 'tamil-nadu', 'name': 'Tamil Nadu', 'image': 'tamil_nadu.png'},
-        {'id': 'karnataka', 'name': 'Karnataka', 'image': 'karnataka.png'},
-        {'id': 'andhra-pradesh', 'name': 'Andhra Pradesh', 'image': 'andhra_pradesh.png'},
-        {'id': 'telangana', 'name': 'Telangana', 'image': 'telangana.png'},
-        {'id': 'maharashtra', 'name': 'Maharashtra', 'image': 'maharashtra.png'},
-        {'id': 'goa', 'name': 'Goa', 'image': 'goa.png'},
-        {'id': 'gujarat', 'name': 'Gujarat', 'image': 'gujarat.png'},
-        {'id': 'madhya-pradesh', 'name': 'Madhya Pradesh', 'image': 'madhya_pradesh.png'},
-        {'id': 'chhattisgarh', 'name': 'Chhattisgarh', 'image': 'chhattisgarh.png'},
-        {'id': 'odisha', 'name': 'Odisha', 'image': 'odisha.png'},
-        {'id': 'jharkhand', 'name': 'Jharkhand', 'image': 'jharkhand.png'},
-        {'id': 'bihar', 'name': 'Bihar', 'image': 'bihar.png'},
-        {'id': 'west-bengal', 'name': 'West Bengal', 'image': 'west_bengal.png'},
-        {'id': 'uttar-pradesh', 'name': 'Uttar Pradesh', 'image': 'uttar_pradesh.png'},
-        {'id': 'punjab', 'name': 'Punjab', 'image': 'punjab.png'},
+
+    # List of Indian states
+    indian_states = [
+        'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+        'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+        'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+        'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana',
+        'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+        'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu',
+        'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
     ]
-    
+
+    # Create states list with id and image
+    states = [
+        {
+            'id': state.lower().replace(' ', '-'),  # e.g., 'Tamil Nadu' -> 'tamil-nadu'
+            'name': state,
+            'image': f"{state.lower().replace(' ', '-')}.png"  # e.g., 'tamil-nadu.png'
+        } for state in indian_states
+    ]
+
     context = {
         'recent_searches': recent_searches,
         'states': states
     }
-    
+
     return render(request, 'location_selector.html', context)
 
 @login_required

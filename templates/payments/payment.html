@@ -1,32 +1,106 @@
-{% extends "base.html" %} {% block content %}
-<div class="container py-5 mt-5">
-  <h2>Complete your payment</h2>
-  <button id="rzp-button1">Pay with Razorpay</button>
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Include Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <div class="bg-light rounded p-4 mb-4">
+            <h4 class="mb-3">Booking Details</h4>
+
+            {% if booking %}
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Booking ID:</div>
+              <div class="col-sm-8 fw-bold">{{ booking.id }}</div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Facility:</div>
+              <div class="col-sm-8">{{ booking.slot.field.name }}</div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Activity:</div>
+              <div class="col-sm-8">{{ booking.slot.field.activity_type }}</div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Location:</div>
+              <div class="col-sm-8">{{ booking.slot.field.location }}</div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Date:</div>
+              <div class="col-sm-8">{{ booking.slot.date|date:"F j, Y" }}</div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Time:</div>
+              <div class="col-sm-8">
+                {{ booking.slot.start_time|time:"g:i A" }} to
+                {{ booking.slot.end_time|time:"g:i A" }}
+              </div>
+            </div>
+            {% if booking.participants %}
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Participants:</div>
+              <div class="col-sm-8">{{ booking.participants }}</div>
+            </div>
+            {% endif %}
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Total Price:</div>
+              <div class="col-sm-8 fw-bold text-primary">
+                Rs.{{ booking.slot.price }}
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-sm-4 text-muted">Booking Status:</div>
+              <div class="col-sm-8 fw-bold text-primary">
+                {{ booking.status }}
+              </div>
+            </div>
+            {% else %}
+            <div class="alert alert-warning">No booking details available.</div>
+            {% endif %}
+          </div>
+          {% if booking.status != 'PAID' %}
+          <div class="text-center">
+            {% if order_id %}
+            <button class="btn btn-primary me-2" id="rzp-button1">
+              <i class="fas fa-credit-card me-2"></i>Pay Now
+            </button>
+            {% endif %}
+            <a href="{% url 'index' %}" class="btn btn-outline-primary">
+              <i class="fas fa-home me-2"></i>Return to Home
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
+{% if order_id %}
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
   var options = {
-    key: "{{ razorpay_key }}", // Enter the Key ID generated from the Dashboard
-    amount: "50000", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-    currency: "INR",
-    name: "Acme Corp", //your business name
-    description: "Test Transaction",
-
-    order_id: "{{ order_id }}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    key: "{{ razorpay_key }}",
+    amount: "{{ amount }}",
+    currency: "{{ currency }}",
+    name: "Fieldreserve",
+    description: "Booking Payment for {{ booking.id }}",
+    order_id: "{{ order_id }}",
     handler: function (response) {
-      alert(response.razorpay_payment_id);
-      alert(response.razorpay_order_id);
-      alert(response.razorpay_signature);
+      // Redirect to a success page or update booking status
+      window.location.href = "{% url 'booking_confirmation' booking.id %}?payment_id=" + response.razorpay_payment_id;
     },
     prefill: {
-      //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
-      name: "Shurti Shitole", //your customer's name
-      email: "deepak002more@gmail.com",
-      contact: "9000090000", //Provide the customer's phone number for better conversion rates
+      name: "{{ request.user.get_full_name|default:request.user.username }}",
+      email: "{{ request.user.email }}",
+      contact: "{{ request.user.profile.phone_number|default:'9000090000' }}",
     },
     notes: {
-      address: "Razorpay Corporate Office",
+      booking_id: "{{ booking.id }}",
     },
     theme: {
       color: "#3399cc",
@@ -34,18 +108,13 @@
   };
   var rzp1 = new Razorpay(options);
   rzp1.on("payment.failed", function (response) {
-    alert(response.error.code);
-    alert(response.error.description);
-    alert(response.error.source);
-    alert(response.error.step);
-    alert(response.error.reason);
-    alert(response.error.metadata.order_id);
-    alert(response.error.metadata.payment_id);
+    alert("Payment failed: " + response.error.description);
   });
   document.getElementById("rzp-button1").onclick = function (e) {
     rzp1.open();
     e.preventDefault();
   };
 </script>
+{% endif %}
 
 {% endblock content %}

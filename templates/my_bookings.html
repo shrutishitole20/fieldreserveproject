@@ -1,6 +1,7 @@
-{% extends 'base.html' %} {% block content %}
+{% extends "base.html" %}
+{% block content %}
 <div class="container py-5">
-  <h1 class="mb-4">My Bookings</h1>
+  <h1 class="mb-4 text-gradient">My Bookings</h1>
 
   {% if bookings %}
   <div class="row g-4">
@@ -21,30 +22,50 @@
         {% endif %}
         <div class="card-body">
           <h5 class="card-title mb-0">{{ booking.slot.field.name }}</h5>
-          <p class="card-subtitle text-secondary mb-3">
-            {{ booking.slot.field.location }}
-          </p>
-          <div class="row mb-3">
+          <p class="card-subtitle text-secondary mb-3">{{ booking.slot.field.location }}</p>
+          <div class="row mb-2">
+            <div class="col-sm-4 text-muted">Date:</div>
+            <div class="col-sm-8">{{ booking.slot.date|date:"F j, Y" }}</div>
+          </div>
+          <div class="row mb-2">
             <div class="col-sm-4 text-muted">Time:</div>
             <div class="col-sm-8">
-              From {{ booking.slot.start_time|time:"g:i A" }} to
-              <!-- hi -->
+              {{ booking.slot.start_time|time:"g:i A" }} to
               {{ booking.slot.end_time|time:"g:i A" }}
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-sm-4 text-muted">Status:</div>
+            <div class="col-sm-8">
+              {% if booking.status == 'PENDING' %}
+                <span class="badge bg-warning text-dark">Pending</span>
+              {% elif booking.status == 'PAID' %}
+                <span class="badge bg-success">Paid</span>
+              {% elif booking.status == 'CONFIRMED' %}
+                <span class="badge bg-primary">Confirmed</span>
+              {% elif booking.status == 'CANCELLED' %}
+                <span class="badge bg-danger">Cancelled</span>
+              {% else %}
+                <span class="badge bg-secondary">{{ booking.status }}</span>
+              {% endif %}
             </div>
           </div>
           <p class="card-text text-primary fw-semibold mb-3">
             Price: Rs.{{ booking.slot.price }}
           </p>
+          <a href="{% url 'payment' booking.id %}" class="btn btn-sm btn-outline-primary btn-animation">
+            View Details
+          </a>
         </div>
       </div>
     </div>
     {% endfor %}
   </div>
   {% else %}
-  <p class="lead text-center">You have no bookings yet.</p>
-  <p class="text-center">
-    <a href="/" class="btn btn-primary">Find and Book a Spot</a>
-  </p>
+  <div class="alert alert-info shadow-sm text-center">
+    You have no bookings yet.
+    <a href="{% url 'location_selector' %}" class="alert-link">Find and book a spot!</a>
+  </div>
   {% endif %}
 </div>
 {% endblock content %}

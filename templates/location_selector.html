@@ -1,22 +1,21 @@
-{% extends 'base.html' %} {% load static %}
-<!-- Add this line -->
+{% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="container py-5">
   <div class="row">
     <div class="col-md-10 mx-auto">
       <div class="d-flex justify-content-between mb-4">
-        <a href="{% url 'index' %}" class="btn btn-link text-dark px-0">
+        <button onclick="history.back()" class="btn btn-link text-dark px-0" title="Go Back">
           <i class="fas fa-arrow-left"></i>
-        </a>
-        <a href="{% url 'index' %}" class="btn btn-link text-dark px-0">
+        </button>
+        <a href="{% url 'index' %}" class="btn btn-link text-dark px-0" title="Home">
           <i class="fas fa-home"></i>
         </a>
       </div>
 
-      <h2 class="mb-4">Choose your location</h2>
+      <h2 class="mb-4 text-gradient">Choose Your State</h2>
 
-      <!-- Rest of the template remains unchanged -->
       <form id="location-search-form" class="mb-4">
         <div class="input-group mb-3">
           <input
@@ -24,19 +23,19 @@
             name="location"
             id="location-input"
             class="form-control form-control-lg"
-            placeholder="Search"
-            aria-label="Search location"
+            placeholder="Search for a state"
+            aria-label="Search state"
           />
-          <button class="btn btn-outline-secondary" type="submit">
-            <i class="fas fa-search"></i>
+          <button class="btn btn-outline-primary" type="submit">
+            <i class="fas fa-search"></i> Search
           </button>
         </div>
       </form>
 
       <a
-        href="#"
+        href="{% url 'show_nearby_grounds' %}"
         id="detect-location"
-        class="d-flex align-items-center text-success mb-4"
+        class="d-flex align-items-center text-success mb-4 text-decoration-none"
       >
         <i class="fas fa-location-arrow me-2"></i>
         <span>Detect my location</span>
@@ -45,7 +44,6 @@
       <div id="nearby-grounds-container" class="mb-5 d-none">
         <h4 class="mb-3">Playgrounds Near Me</h4>
         <div id="nearby-grounds-list" class="row g-4">
-          <!-- Nearby grounds will be loaded here -->
           <div class="col-12 text-center py-4">
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Loading...</span>
@@ -59,14 +57,9 @@
         <h5 class="mb-3">Recent Search History</h5>
         <div class="list-group">
           {% for search in recent_searches %}
-          <div
-            class="list-group-item d-flex justify-content-between align-items-center"
-          >
-            {{ search.search_term }}
-            <a
-              href="{% url 'remove_search' search_id=search.id %}"
-              class="text-muted"
-            >
+          <div class="list-group-item d-flex justify-content-between align-items-center">
+            <span class="search-term" data-location="{{ search.search_term }}">{{ search.search_term }}</span>
+            <a href="{% url 'remove_search' search_id=search.id %}" class="text-muted" title="Remove search">
               <i class="fas fa-times"></i>
             </a>
           </div>
@@ -76,7 +69,7 @@
       {% endif %}
 
       <div class="mb-4">
-        <h5 class="mb-3">Pick your state</h5>
+        <h5 class="mb-3">Pick Your State</h5>
         <div class="row row-cols-2 row-cols-md-4 g-4">
           {% for state in states %}
           <div class="col text-center">
@@ -85,13 +78,14 @@
               class="text-decoration-none location-state-item"
               data-location="{{ state.name }}"
             >
-              <div class="card h-100 border-0">
+              <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body">
                   <img
                     src="{% static 'images/states/'|add:state.image %}"
                     alt="{{ state.name }}"
                     class="img-fluid mb-2"
                     style="height: 80px; width: auto"
+                    onerror="this.src='{% static 'images/states/default_state.png' %}'"
                   />
                   <p class="card-text">{{ state.name }}</p>
                 </div>
@@ -104,73 +98,95 @@
     </div>
   </div>
 </div>
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const detectLocationBtn = document.getElementById("detect-location");
-    const nearbyGroundsContainer = document.getElementById(
-      "nearby-grounds-container"
-    );
+    const nearbyGroundsContainer = document.getElementById("nearby-grounds-container");
     const nearbyGroundsList = document.getElementById("nearby-grounds-list");
     const locationSearchForm = document.getElementById("location-search-form");
     const locationInput = document.getElementById("location-input");
-    const locationStateItems = document.querySelectorAll(
-      ".location-state-item"
-    );
+    const locationStateItems = document.querySelectorAll(".location-state-item");
+    const searchTerms = document.querySelectorAll(".search-term");
 
     // Function to load and display grounds
     function loadGrounds(url) {
       nearbyGroundsContainer.classList.remove("d-none");
-      nearbyGroundsList.innerHTML =
-        '<div class="spinner-border text-primary"></div>';
+      nearbyGroundsList.innerHTML = `
+        <div class="col-12 text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      `;
       fetch(url)
-        .then((response) => response.json())
+        .then((response) => {
+          if (!response.ok) throw new Error("Network response was not ok");
+          return response.json();
+        })
         .then((data) => {
           nearbyGroundsList.innerHTML = "";
           if (data.grounds && data.grounds.length > 0) {
             data.grounds.forEach((location) => {
               location.grounds.forEach((ground) => {
                 const groundCard = `
-                  <div class="card mb-3">
-                    <img src="${ground.image_url}" class="card-img-top" alt="${ground.name}">
-                    <div class="card-body">
-                      <h5 class="card-title">${ground.name}</h5>
-                      <p class="card-text">${ground.description}</p>
-                      <p class="text-muted">Activity: ${ground.activity_type}</p>
-                      <a href="/direct-book-ground/${ground.id}/" class="btn btn-success">Book Now</a>
+                  <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                      <img src="${ground.image_url || '{% static "images/default_field.jpg" %}'}" 
+                           class="card-img-top" 
+                           alt="${ground.name}"
+                           style="height: 200px; object-fit: cover;">
+                      <div class="card-body">
+                        <h5 class="card-title">${ground.name}</h5>
+                        <p class="card-text">${ground.description || 'No description available'}</p>
+                        <p class="text-muted">Activity: ${ground.activity_type || 'N/A'}</p>
+                        <a href="/direct-book-ground/${ground.id}/" class="btn btn-success btn-animation">Book Now</a>
+                      </div>
                     </div>
                   </div>`;
                 nearbyGroundsList.innerHTML += groundCard;
               });
             });
           } else {
-            nearbyGroundsList.innerHTML =
-              "<p>No grounds found near your location.</p>";
+            nearbyGroundsList.innerHTML = `
+              <div class="col-12">
+                <div class="alert alert-info">No grounds found for this location.</div>
+              </div>
+            `;
           }
         })
-        .catch(() => {
-          nearbyGroundsList.innerHTML =
-            "<p>Error loading grounds. Please try again.</p>";
+        .catch((error) => {
+          nearbyGroundsList.innerHTML = `
+            <div class="col-12">
+              <div class="alert alert-danger">Error loading grounds: ${error.message}. Please try again.</div>
+            </div>
+          `;
+          console.error("Fetch error:", error);
         });
     }
 
     // Handle "Detect my location" button click
     detectLocationBtn.addEventListener("click", function (e) {
       e.preventDefault();
-
       if (navigator.geolocation) {
+        nearbyGroundsContainer.classList.remove("d-none");
+        nearbyGroundsList.innerHTML = `
+          <div class="col-12 text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        `;
         navigator.geolocation.getCurrentPosition(
-          function (position) {
+          (position) => {
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
-
-            // Load grounds using coordinates
-            loadGrounds(
-              `/api/nearby-grounds/?lat=${latitude}&lng=${longitude}`
-            );
+            loadGrounds(`/api/nearby-grounds/?lat=${latitude}&lng=${longitude}`);
           },
-          function (error) {
+          (error) => {
             nearbyGroundsContainer.classList.add("d-none");
-            alert("Unable to retrieve your location. Please search manually.");
+            nearbyGroundsList.innerHTML = "";
+            alert("Unable to retrieve your location: " + error.message);
             console.error("Geolocation error:", error);
           },
           {
@@ -180,9 +196,7 @@
           }
         );
       } else {
-        alert(
-          "Geolocation is not supported by your browser. Please search manually."
-        );
+        alert("Geolocation is not supported by your browser.");
       }
     });
 
@@ -190,12 +204,10 @@
     locationSearchForm.addEventListener("submit", function (e) {
       e.preventDefault();
       const location = locationInput.value.trim();
-
       if (location) {
-        // Load grounds for this location
-        loadGrounds(
-          `/api/nearby-grounds/?location=${encodeURIComponent(location)}`
-        );
+        loadGrounds(`/api/nearby-grounds/?location=${encodeURIComponent(location)}`);
+      } else {
+        alert("Please enter a state to search.");
       }
     });
 
@@ -204,12 +216,21 @@
       item.addEventListener("click", function (e) {
         e.preventDefault();
         const location = this.dataset.location;
-
         if (location) {
-          // Load grounds for this location/state
-          loadGrounds(
-            `/api/nearby-grounds/?location=${encodeURIComponent(location)}`
-          );
+          locationInput.value = location;
+          loadGrounds(`/api/nearby-grounds/?location=${encodeURIComponent(location)}`);
+        }
+      });
+    });
+
+    // Handle recent search clicks
+    searchTerms.forEach((item) => {
+      item.addEventListener("click", function (e) {
+        e.preventDefault();
+        const location = this.dataset.location;
+        if (location) {
+          locationInput.value = location;
+          loadGrounds(`/api/nearby-grounds/?location=${encodeURIComponent(location)}`);
         }
       });
     });

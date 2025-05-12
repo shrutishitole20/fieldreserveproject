@@ -1,4 +1,5 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} 
+{% block content %}
 <div class="container mt-5">
   <div class="row mb-4">
     <div class="col-md-12">
@@ -16,13 +17,13 @@
       </nav>
 
       <h2 class="mb-3">
-        {% if lat and lng %} Sports Grounds near your current location {% else
-        %} Sports Grounds in {{ location }} {% endif %}
+        {% if lat and lng %} Sports Grounds near your current location 
+        {% else %} Sports Grounds in {{ location }} {% endif %}
       </h2>
       <p class="lead text-muted">
         {% if lat and lng %} Discover and book sports facilities near you {%
-        else %} Discover and book sports facilities in {{ location }} {% endif
-        %}
+        else %} Discover and book sports facilities in {{ location }} 
+        {% endif %}
       </p>
     </div>
   </div>

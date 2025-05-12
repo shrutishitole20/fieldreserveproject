@@ -1,24 +1,48 @@
 import razorpay
-from fieldreserve.settings import RAZORPAY_API_KEY, RAZORPAY_API_SECRET
-client = razorpay.Client(auth=(RAZORPAY_API_KEY, RAZORPAY_API_SECRET))
-from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404
+from django.conf import settings
+from booking.models import Booking
 
-def payment(request):
-    # if request.method == 'POST':
-        amount = 50000  # Amount in paise (500.00 INR)
-        currency = 'INR'
-        receipt = 'receipt#1'
-        # notes = {'note_key': 'note_value'}
+# Initialize Razorpay client
+client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
 
-        # Create a Razorpay order
-        order = client.order.create(dict(amount=amount, currency=currency, receipt=receipt, payment_capture=1) )
-        order_id = order['id']
-        context = {
-            'order_id': order_id,
+def payment(request, booking_id):
+    # Fetch booking for the authenticated user
+    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+
+    # Calculate amount from booking (convert to paise for Razorpay)
+    amount = int(booking.slot.price * 100)  # e.g., Rs.500 -> 50000 paise
+    currency = 'INR'
+    receipt = f'booking_{booking_id}'
+
+    # Create Razorpay order
+    try:
+        order = client.order.create({
             'amount': amount,
             'currency': currency,
-            'razorpay_key': RAZORPAY_API_KEY,
-        }
-        return render(request, 'payments/payment.html', context)
-    # else:
-    #     return render(request, 'payments/payment.html')
+            'receipt': receipt,
+            'payment_capture': 1  # Auto-capture payment
+        })
+        order_id = order['id']
+        
+        # Update booking status
+        booking.payment_status = 'COMPLETED'
+        booking.status = 'PAID'
+        booking.save()  # Save changes to the database
+    except Exception as e:
+        # Handle Razorpay order creation failure
+        return render(request, 'payments/payment.html', {
+            'booking': booking,
+            'error': f'Failed to create order: {str(e)}'
+        })
+
+    # Context for template
+    context = {
+        'booking': booking,
+        'order_id': order_id,
+        'amount': amount,
+        'currency': currency,
+        'razorpay_key': settings.RAZORPAY_API_KEY,
+    }
+
+    return render(request, 'payments/payment.html', context)
