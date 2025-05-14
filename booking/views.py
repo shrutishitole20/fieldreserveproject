@@ -211,13 +211,7 @@ def booking_success(request):
     """View to show booking success page."""
     return render(request, 'booking_success.html')
 
-@login_required
-def booking_confirmation(request, booking_id):
-    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
-    booking.payment_status = 'COMPLETED'
-    booking.status = 'PAID'
-    booking.save()  # Save changes to the database
-    return render(request, 'booking_confirmation.html', {'booking': booking})
+
 
 def register(request):
     if request.method == 'POST':

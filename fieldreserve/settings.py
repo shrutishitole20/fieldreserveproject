@@ -145,18 +145,22 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
 }
 
-# Custom setting for superuser email
 SUPERUSER_EMAIL = 'ShrutiShitole2030@gmail.com'
-# Dummy email backend for development (doesn't actually send emails)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email backend settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
+# Replace with your email provider's SMTP settings
+EMAIL_HOST = 'smtp.gmail.com'  # for Gmail
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#EMAIL_HOST = 'smtp.your-email-provider.com'
-#EMAIL_PORT = 587
-#EMAIL_USE_TLS = True
-#EMAIL_HOST_USER = 'Shrutishitole2030@gmail.com'
-#EMAIL_HOST_PASSWORD = 'Shruti@4848'
+# Replace with your actual email credentials
+EMAIL_HOST_USER = 'shrutishitole2030@gmail.com'
+EMAIL_HOST_PASSWORD = 'kdgz khop heyh nxrd'
+
+# Default "from" address for sending emails
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 
 RAZORPAY_API_KEY = 'rzp_test_crwDMPwYsFrCMs'
 RAZORPAY_API_SECRET = 'uohdqRTM7RzXK0Yt6Ev8KifA'  

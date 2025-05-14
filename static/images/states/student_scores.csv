@@ -1,0 +1,22 @@
+Date,Region,Salesperson,Product,Units Sold,Unit Price,Total Revenue
+15-01-2024,East,Aarav,Laptop,5,800,4000
+15-01-2024,East,Bob,Monitor,10,150,1500
+16-01-2024,West,Charlie,Laptop,3,800,2400
+17-01-2024,East,Aarav,Mouse,20,25,500
+18-01-2024,South,David,Keyboard,15,50,750
+19-01-2024,East,Priya,Laptop,8,800,6400
+19-01-2024,East,Saanvi,Monitor,12,150,1800
+20-01-2024,West,Tanvi,Laptop,5,800,4000
+21-01-2024,East,Kabir,Mouse,18,25,450
+21-01-2024,South,Neel,Keyboard,20,50,1000
+22-01-2024,East,Aanya,Laptop,6,800,4800
+22-01-2024,East,Meera,Monitor,9,150,1350
+23-01-2024,West,Dev,Laptop,4,800,3200
+24-01-2024,East,Priya,Mouse,25,25,625
+25-01-2024,South,Aanya,Keyboard,18,50,900
+26-01-2024,East,Kabir,Laptop,7,800,5600
+27-01-2024,West,Saanvi,Monitor,13,150,1950
+28-01-2024,East,Aarav,Mouse,22,25,550
+29-01-2024,South,Tanvi,Keyboard,16,50,800
+30-01-2024,East,Neel,Laptop,9,800,7200
+30-01-2024,East,Meera,Monitor,11,150,1650
