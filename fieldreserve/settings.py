@@ -149,16 +149,13 @@ SUPERUSER_EMAIL = 'ShrutiShitole2030@gmail.com'
 # Email backend settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-# Replace with your email provider's SMTP settings
-EMAIL_HOST = 'smtp.gmail.com'  # for Gmail
+EMAIL_HOST = 'smtp.gmail.com'  
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-# Replace with your actual email credentials
 EMAIL_HOST_USER = 'shrutishitole2030@gmail.com'
 EMAIL_HOST_PASSWORD = 'kdgz khop heyh nxrd'
 
-# Default "from" address for sending emails
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
